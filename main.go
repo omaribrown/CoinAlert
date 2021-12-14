@@ -64,16 +64,21 @@ func main() {
 	viperenv := viperEnvVariable("API_KEY")
 	k := Keys{viperenv}
 
-	// fmt.Println(k.GetCoinLatest("BTC/USD", "1DAY"))
+	x := k.GetCoinLatest("BTC/USD", "1DAY")
 
-	coinLatest := k.GetCoinLatest("BTC/USD", "1DAY")
-	var response Latest_OHLCV
-	err := json.Unmarshal([]byte(coinLatest), &response)
-	if err != nil {
-		log.Fatal(err)
-	}
+	data := Latest_OHLCV{}
+	json.Unmarshal([]byte(x), &data)
 
-	fmt.Println(response)
+	fmt.Println(data)
+
+	// coinLatest := []byte(k.GetCoinLatest("BTC/USD", "1DAY"))
+	// var response []Latest_OHLCV
+	// err := json.Unmarshal(coinLatest, &response)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// fmt.Println(response)
 }
 
 // Period ID's:
