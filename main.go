@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -26,11 +27,24 @@ func viperEnvVariable(key string) string {
 	return value
 }
 
+type Latest_OHLCV struct {
+	Time_Period_Start string `json:"time_period_start"`
+	Time_Period_End   string `json:"time_period_end"`
+	Time_Open         string `json:"time_open"`
+	Time_Close        string `json:"time_close"`
+	Price_Open        string `json:"price_open"`
+	Price_High        string `json:"price_high"`
+	Price_Low         string `json:"price_low"`
+	Price_Close       string `json:"price_close"`
+	Volume_Traded     string `json:"volume_traded"`
+	Trades_Count      string `json:"trades_count"`
+}
+
 type Keys struct {
 	API_KEY string
 }
 
-func (k Keys) CoinLatest(symbol string, period string) string {
+func (k Keys) GetCoinLatest(symbol string, period string) string {
 	resp, err := resty.R().
 		SetHeader("X-CoinAPI-Key", k.API_KEY).
 		Get("https://rest.coinapi.io/v1/ohlcv/" + symbol + "/latest?period_id=" + period + "&limit=1")
@@ -38,7 +52,11 @@ func (k Keys) CoinLatest(symbol string, period string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	return string(resp.Body)
+	// data, _ := json.Unmarshal(resp.Body)
+	// fmt.Println(string(data))
+	// return string(data)
 }
 
 func main() {
@@ -46,8 +64,16 @@ func main() {
 	viperenv := viperEnvVariable("API_KEY")
 	k := Keys{viperenv}
 
-	fmt.Println(k.CoinLatest("BTC/USD", "1DAY"))
+	// fmt.Println(k.GetCoinLatest("BTC/USD", "1DAY"))
 
+	coinLatest := k.GetCoinLatest("BTC/USD", "1DAY")
+	var response Latest_OHLCV
+	err := json.Unmarshal([]byte(coinLatest), &response)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(response)
 }
 
 // Period ID's:
