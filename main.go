@@ -4,8 +4,27 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/spf13/viper"
 	"gopkg.in/resty.v0"
 )
+
+func viperEnvVariable(key string) string {
+	viper.SetConfigFile(".env")
+
+	err := viper.ReadInConfig()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	value, ok := viper.Get(key).(string)
+
+	if !ok {
+		log.Fatalf("Invalid type assertion")
+	}
+
+	return value
+}
 
 type Keys struct {
 	API_KEY string
@@ -14,7 +33,7 @@ type Keys struct {
 func (k Keys) CoinLatest(symbol string, period string) string {
 	resp, err := resty.R().
 		SetHeader("X-CoinAPI-Key", k.API_KEY).
-		Get("https://rest.coinapi.io/v1/ohlcv/" + symbol + "/latest?period_id=" + period + "&limit=3")
+		Get("https://rest.coinapi.io/v1/ohlcv/" + symbol + "/latest?period_id=" + period + "&limit=1")
 
 	if err != nil {
 		log.Fatal(err)
@@ -24,7 +43,8 @@ func (k Keys) CoinLatest(symbol string, period string) string {
 
 func main() {
 
-	k := Keys{"ADE71FB5-9455-4547-9272-9C2D491AA630"}
+	viperenv := viperEnvVariable("API_KEY")
+	k := Keys{viperenv}
 
 	fmt.Println(k.CoinLatest("BTC/USD", "1DAY"))
 
