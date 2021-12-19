@@ -2,34 +2,18 @@ package main
 
 import (
 	"fmt"
+
+	coinapi "github.com/omaribrown/coinalert/data"
+	envVariables "github.com/omaribrown/coinalert/envvar"
 )
 
-// import KEYS "github.com/omaribrown/CoinAlert/coinapi.go"
-
 func main() {
+	Viperenv := envVariables.ViperEnvVariable("API_KEY")
+	coinapi := &coinapi.Coinapi{API_KEY: Viperenv}
 
-	fmt.Println(Test)
-	// var viperenv = viperEnvVariable("API_KEY")
+	ohlvc_latest := coinapi.GetCoinLatest("BTC/USD", "1DAY", "3")
+	fmt.Println("Negative: ", ohlvc_latest[2])
 
-	// newKey := NewKey(viperenv)
-
-	// // key := KEYS{viperenv}
-	// fmt.Println(newKey)
-	// fmt.Println(k.GetCoinLatest("BTC/USD", "1DAY"))
-
-	// data := Latest_OHLCV{}
-	// json.Unmarshal([]byte(x), &data)
-
-	// fmt.Println(data)
-
-	// coinLatest := []byte(k.GetCoinLatest("BTC/USD", "1DAY"))
-	// var response []Latest_OHLCV
-	// err := json.Unmarshal(coinLatest, &response)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// fmt.Println(response)
 }
 
 // Period ID's:
