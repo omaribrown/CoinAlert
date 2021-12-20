@@ -11,8 +11,8 @@ func main() {
 	Viperenv := envVariables.ViperEnvVariable("API_KEY")
 	coinapi := &coinapi.Coinapi{API_KEY: Viperenv}
 
-	ohlvc_latest := coinapi.GetCoinLatest("BTC/USD", "1DAY", "3")
-	fmt.Println("Negative: ", ohlvc_latest[2])
+	ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1DAY", "3")
+	fmt.Println("Negative: ", ohlvcLatest)
 
 }
 

@@ -7,31 +7,33 @@ import (
 	"gopkg.in/resty.v0"
 )
 
-// API Data
-type Latest_OHLCV struct {
-	Time_Period_Start string  `json:"time_period_start"`
-	Time_Period_End   string  `json:"time_period_end"`
-	Time_Open         string  `json:"time_open"`
-	Time_Close        float64 `json:"time_close"`
-	Price_Open        float64 `json:"price_open"`
-	Price_High        float64 `json:"price_high"`
-	Price_Low         float64 `json:"price_low"`
-	Price_Close       float64 `json:"price_close"`
-	Volume_Traded     float64 `json:"volume_traded"`
-	Trades_Count      int64   `json:"trades_count"`
+type IResty interface {
+	Get(string) *resty.Response
+	SetHeader(header, value string) *resty.Client
 }
 
-type KEYS struct {
-	api_key string
+// API Data
+type LatestOhlcv struct {
+	TimePeriodStart string  `json:"time_period_start"`
+	TimePeriodEnd   string  `json:"time_period_end"`
+	TimeOpen        string  `json:"time_open"`
+	TimeClose       float64 `json:"time_close"`
+	PriceOpen       float64 `json:"price_open"`
+	PriceHigh       float64 `json:"price_high"`
+	PriceLow        float64 `json:"price_low"`
+	PriceClose      float64 `json:"price_close"`
+	VolumeTraded    float64 `json:"volume_traded"`
+	TradesCount     int64   `json:"trades_count"`
 }
 
 type Coinapi struct {
 	API_KEY string
+	Resty   IResty
 }
 
-func (c *Coinapi) GetCoinLatest(symbol string, period string, limit string) []Latest_OHLCV {
+func (c *Coinapi) GetCoinLatest(symbol string, period string, limit string) []LatestOhlcv {
 
-	resp, err := resty.R().
+	resp, err := c.Resty.
 		SetHeader("X-CoinAPI-Key", c.API_KEY).
 		Get("https://rest.coinapi.io/v1/ohlcv/" + symbol + "/latest?period_id=" + period + "&limit=" + limit)
 
@@ -39,7 +41,7 @@ func (c *Coinapi) GetCoinLatest(symbol string, period string, limit string) []La
 		log.Fatal(err)
 	}
 
-	var Newstruct []Latest_OHLCV
+	var Newstruct []LatestOhlcv
 	json.Unmarshal([]byte(resp.Body), &Newstruct)
 	return Newstruct
 
