@@ -8,8 +8,8 @@ import (
 )
 
 type IResty interface {
-	Get(string) *resty.Response
-	SetHeader(header, value string) *resty.Client
+	Get(string) (*resty.Response, error)
+	SetHeader(header, value string) *resty.Request
 }
 
 // API Data
@@ -42,7 +42,7 @@ func (c *Coinapi) GetCoinLatest(symbol string, period string, limit string) []La
 	}
 
 	var Newstruct []LatestOhlcv
-	json.Unmarshal([]byte(resp.Body), &Newstruct)
+	json.Unmarshal(resp.Body, &Newstruct)
 	return Newstruct
 
 }
