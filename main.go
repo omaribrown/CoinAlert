@@ -1,19 +1,16 @@
 package main
 
 import (
-	"fmt"
-
-	coinapi "github.com/omaribrown/coinalert/data"
-	envVariables "github.com/omaribrown/coinalert/envvar"
+	slack "github.com/omaribrown/coinalert/slack"
 )
 
 func main() {
-	Viperenv := envVariables.ViperEnvVariable("API_KEY")
-	coinapi := &coinapi.Coinapi{API_KEY: Viperenv}
-
-	ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1DAY", "3")
-	fmt.Println("Negative: ", ohlvcLatest)
-
+	//Viperenv := envVariables.ViperEnvVariable("API_KEY")
+	//coinapi := &coinapi.Coinapi{API_KEY: Viperenv}
+	//
+	//ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1DAY", "3")
+	//fmt.Println("Negative: ", ohlvcLatest)
+	slack.PostToSlack()
 }
 
 // Period ID's:
