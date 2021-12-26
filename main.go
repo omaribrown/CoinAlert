@@ -1,8 +1,6 @@
 package main
 
-import (
-	slack "github.com/omaribrown/coinalert/slack"
-)
+import "github.com/omaribrown/coinalert/slack"
 
 func main() {
 	//Viperenv := envVariables.ViperEnvVariable("API_KEY")
@@ -10,7 +8,9 @@ func main() {
 	//
 	//ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1DAY", "3")
 	//fmt.Println("Negative: ", ohlvcLatest)
-	slack.PostToSlack()
+
+	message := slack.GenerateNewMessage("Pretext", "Main Text")
+	slack.SlackKeys.SendSlackMessage(message)
 }
 
 // Period ID's:
