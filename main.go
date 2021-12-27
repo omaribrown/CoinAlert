@@ -1,28 +1,28 @@
 package main
 
 import (
+	"fmt"
+	coinapi "github.com/omaribrown/coinalert/data"
 	envVariables "github.com/omaribrown/coinalert/envvar"
-	"github.com/omaribrown/coinalert/slack"
 )
 
 func main() {
-	//Viperenv := envVariables.ViperEnvVariable("API_KEY")
-	//coinapi := &coinapi.Coinapi{API_KEY: Viperenv}
+	Viperenv := envVariables.ViperEnvVariable("API_KEY")
+	coinapi := &coinapi.Coinapi{API_KEY: Viperenv}
+
+	ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1DAY", "3")
+	fmt.Println("Negative: ", ohlvcLatest)
+
+	//slackService := &slack.SlackKeys{
+	//	SlackToken:     envVariables.ViperEnvVariable("SLACK_AUTH_TOKEN"),
+	//	SlackChannelID: envVariables.ViperEnvVariable("SLACK_CHANNEL_ID"),
+	//}
 	//
-	//ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1DAY", "3")
-	//fmt.Println("Negative: ", ohlvcLatest)
+	//slackService.SendSlackMessage(slack.SlackMessage{
+	//	Pretext: "pre-test",
+	//	Text:    "text-test",
+	//})
 
-	slackService := &slack.SlackKeys{
-		SlackToken:     envVariables.ViperEnvVariable("SLACK_AUTH_TOKEN"),
-		SlackChannelID: envVariables.ViperEnvVariable("SLACK_CHANNEL_ID"),
-	}
-
-	slackService.SendSlackMessage(slack.SlackMessage{
-		Pretext: "pre-test",
-		Text:    "text-test",
-	})
-	//message := slack.GenerateNewMessage("Pretext", "Main Text")
-	//slack.SlackKeys.SendSlackMessage(message)
 }
 
 // Period ID's:

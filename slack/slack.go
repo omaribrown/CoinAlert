@@ -28,9 +28,6 @@ func GenerateNewMessage(s1 string, s2 string) *SlackMessage {
 }
 
 func (s SlackKeys) SendSlackMessage(message SlackMessage) {
-
-	//s.SlackChannelID = envVariables.ViperEnvVariable("SLACK_CHANNEL_ID")
-
 	client := slack.New(s.SlackToken, slack.OptionDebug(true))
 
 	pretext := message.Pretext
