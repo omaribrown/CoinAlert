@@ -1,11 +1,20 @@
 package slack
 
 import (
-	"reflect"
 	"testing"
 )
 
-func TestGenerateNewMessage(t *testing.T) {
+func TestSlackService (t *testing.T) {
+	t.Run("should send real message to slack", func(t *testing.T) {
+		s := SlackService{
+			SlackToken:     "xoxb-2865687350037-2865731248501-uP1yg8TYTPFLG0HUmKfnTADf",
+			SlackChannelID: "C02RJK5EXD1",
+		}
+		message := GenerateNewMessage("New Message", "Lets get these bands")
+		s.SendSlackMessage(message)
+	})
+}
+/*func TestGenerateNewMessage(t *testing.T) {
 	type args struct {
 		s1 string
 		s2 string
@@ -52,11 +61,11 @@ func TestSlackKeys_SendSlackMessage(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := SlackKeys{
+			s := SlackService{
 				SlackToken:     tt.fields.SlackToken,
 				SlackChannelID: tt.fields.SlackChannelID,
 			}
 			s.SendSlackMessage(tt.args.message)
 		})
 	}
-}
+}*/

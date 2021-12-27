@@ -5,11 +5,11 @@ import (
 	"github.com/slack-go/slack"
 )
 
-type SlackService interface {
+type ISlackService interface {
 	SendSlackMessage(string)
 }
 
-type SlackKeys struct {
+type SlackService struct {
 	SlackToken     string
 	SlackChannelID string
 }
@@ -19,23 +19,20 @@ type SlackMessage struct {
 	Text    string `json:"text,omitempty"`
 }
 
-func GenerateNewMessage(s1 string, s2 string) *SlackMessage {
-	NewMessage := &SlackMessage{
-		Pretext: s1,
-		Text:    s2,
+func GenerateNewMessage(Pretext string, Text string) SlackMessage {
+	NewMessage := SlackMessage{
+		Pretext: Pretext,
+		Text:    Text,
 	}
 	return NewMessage
 }
 
-func (s SlackKeys) SendSlackMessage(message SlackMessage) {
+func (s SlackService) SendSlackMessage(message SlackMessage) {
 	client := slack.New(s.SlackToken, slack.OptionDebug(true))
 
-	pretext := message.Pretext
-	text := message.Text
-
 	attachment := slack.Attachment{
-		Pretext: pretext,
-		Text:    text,
+		Pretext: message.Pretext,
+		Text:    message.Text,
 	}
 
 	_, timestamp, err := client.PostMessage(
