@@ -4,6 +4,8 @@ go 1.17
 
 require gopkg.in/resty.v0 v0.4.1
 
+require github.com/robfig/cron v1.2.0 // indirect
+
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect

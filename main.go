@@ -2,12 +2,25 @@ package main
 
 import (
 	"fmt"
+	"github.com/robfig/cron"
+	"io"
+	"log"
+	"net/http"
+	"os"
 	"net/http"
 
 	coinapi "github.com/omaribrown/coinalert/data"
 	envVariables "github.com/omaribrown/coinalert/envvar"
 )
 
+func helloWorld(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "Hello, world")
+	fmt.Println("starting cron job")
+	c := cron.New()
+	c.AddFunc("@every 1s", func() { fmt.Println("printing every second \n") })
+	c.Start()
+	select {}
+}
 func main() {
 	Viperenv := envVariables.ViperEnvVariable("API_KEY")
 	coinapi := &coinapi.Coinapi{
@@ -15,8 +28,16 @@ func main() {
 		Client: &http.Client{},
 	}
 
-	ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1DAY", "3")
-	fmt.Println("Negative: ", ohlvcLatest)
+	port := os.Getenv("PORT")
+	http.HandleFunc("/", helloWorld)
+	log.Print("Listening on port :" + port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
+	//Viperenv := envVariables.ViperEnvVariable("API_KEY")
+	//coinapi := &coinapi.Coinapi{API_KEY: Viperenv}
+	//
+	//ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1DAY", "3")
+	//fmt.Println("Negative: ", ohlvcLatest)
+	//log.Info("Create new cron")
 
 	//slackService := &slack.SlackKeys{
 	//	SlackToken:     envVariables.ViperEnvVariable("SLACK_AUTH_TOKEN"),
