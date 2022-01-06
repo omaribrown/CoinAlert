@@ -2,13 +2,18 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+
 	coinapi "github.com/omaribrown/coinalert/data"
 	envVariables "github.com/omaribrown/coinalert/envvar"
 )
 
 func main() {
 	Viperenv := envVariables.ViperEnvVariable("API_KEY")
-	coinapi := &coinapi.Coinapi{API_KEY: Viperenv}
+	coinapi := &coinapi.Coinapi{
+		API_KEY: Viperenv,
+		Client: &http.Client{},
+	}
 
 	ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1DAY", "3")
 	fmt.Println("Negative: ", ohlvcLatest)
