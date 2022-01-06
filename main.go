@@ -16,11 +16,6 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Hello, world")
 	fmt.Println("starting cron job")
 
-	slackService := &slack.SlackService{
-		SlackToken:     os.Getenv("SLACK_AUTH_TOKEN"),
-		SlackChannelID: os.Getenv("SLACK_CHANNEL_ID"),
-	}
-
 	Viperenv := os.Getenv("API_KEY")
 	coinapi := &coinapi.Coinapi{
 		API_KEY: Viperenv,
@@ -35,6 +30,11 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 
 		stringData := cast.ToString(ohlvcLatest)
 		fmt.Println("Crypto Data: ", ohlvcLatest)
+
+		slackService := &slack.SlackService{
+			SlackToken:     os.Getenv("SLACK_AUTH_TOKEN"),
+			SlackChannelID: os.Getenv("SLACK_CHANNEL_ID"),
+		}
 
 		slackService.SendSlackMessage(slack.SlackMessage{
 			Pretext: "Incoming crypto data...",
