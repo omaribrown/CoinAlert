@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	coinapi "github.com/omaribrown/coinalert/data"
-	envVariables "github.com/omaribrown/coinalert/envvar"
 	"github.com/robfig/cron"
 	"io"
 	"log"
@@ -14,7 +13,7 @@ import (
 func helloWorld(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Hello, world")
 	fmt.Println("starting cron job")
-	Viperenv := envVariables.ViperEnvVariable("API_KEY")
+	Viperenv := os.Getenv("API_KEY")
 	coinapi := &coinapi.Coinapi{
 		API_KEY: Viperenv,
 		Client:  &http.Client{},
