@@ -30,7 +30,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	http.HandleFunc("/", helloWorld)
-	log.Print("Listening on port :" + port)
+	log.Print("Listening on port  :" + port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 	//Viperenv := envVariables.ViperEnvVariable("API_KEY")
 	//coinapi := &coinapi.Coinapi{API_KEY: Viperenv}
