@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	coinapi "github.com/omaribrown/coinalert/data"
+	"github.com/omaribrown/coinalert/slack"
 	"github.com/robfig/cron"
+	"github.com/spf13/cast"
 	"io"
 	"log"
 	"net/http"
@@ -13,27 +15,31 @@ import (
 func helloWorld(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Hello, world")
 	fmt.Println("starting cron job")
+
+	slackService := &slack.SlackService{
+		SlackToken:     os.Getenv("SLACK_AUTH_TOKEN"),
+		SlackChannelID: os.Getenv("SLACK_CHANNEL_ID"),
+	}
+
 	Viperenv := os.Getenv("API_KEY")
 	coinapi := &coinapi.Coinapi{
 		API_KEY: Viperenv,
 		Client:  &http.Client{},
 	}
+
 	c := cron.New()
-	//c.AddFunc("@every 30s", func() {
-	//	slackService := &slack.SlackService{
-	//		SlackToken:     os.Getenv("SLACK_AUTH_TOKEN"),
-	//		SlackChannelID: os.Getenv("SLACK_CHANNEL_ID"),
-	//	}
-	//
-	//	slackService.SendSlackMessage(slack.SlackMessage{
-	//		Pretext: "pre-test",
-	//		Text:    "text-test",
-	//	})
-	//})
+
 	c.AddFunc("@every 1m", func() {
+
 		ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1MIN", "1")
+
+		stringData := cast.ToString(ohlvcLatest)
 		fmt.Println("Crypto Data: ", ohlvcLatest)
 
+		slackService.SendSlackMessage(slack.SlackMessage{
+			Pretext: "Incoming crypto data...",
+			Text:    stringData,
+		})
 	})
 	c.Start()
 	select {}
