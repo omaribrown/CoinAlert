@@ -2,9 +2,9 @@ module github.com/omaribrown/coinalert
 
 go 1.17
 
-require gopkg.in/resty.v0 v0.4.1
+require gopkg.in/resty.v0 v0.4.1 // indirect
 
-require github.com/robfig/cron v1.2.0 // indirect
+require github.com/robfig/cron v1.2.0
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -31,7 +31,7 @@ require (
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
-	github.com/shopspring/decimal v1.3.1
+	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
