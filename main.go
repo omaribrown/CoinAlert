@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
 	coinapi "github.com/omaribrown/coinalert/data"
 	"github.com/omaribrown/coinalert/slack"
 	"github.com/robfig/cron"
@@ -23,6 +24,12 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c := cron.New()
+
+	envErr := godotenv.Load(".env")
+	if envErr != nil {
+		fmt.Printf("Could not load .env file")
+		os.Exit(1)
+	}
 
 	c.AddFunc("@every 1m", func() {
 

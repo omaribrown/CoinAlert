@@ -6,7 +6,10 @@ go 1.17
 
 require gopkg.in/resty.v0 v0.4.1 // indirect
 
-require github.com/robfig/cron v1.2.0
+require (
+	github.com/joho/godotenv v1.4.0
+	github.com/robfig/cron v1.2.0
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
