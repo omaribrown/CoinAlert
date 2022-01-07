@@ -12,7 +12,7 @@ import (
 	"os"
 )
 
-func helloWorld(w http.ResponseWriter, r *http.Request) {
+func coinToSlack(w http.ResponseWriter, r *http.Request) {
 	// ! Does not write to page
 	io.WriteString(w, "Hello, world")
 
@@ -54,7 +54,7 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	port := os.Getenv("PORT")
-	http.HandleFunc("/", helloWorld)
+	http.HandleFunc("/", coinToSlack)
 	log.Print("Listening on port  :" + port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 
