@@ -13,8 +13,8 @@ import (
 )
 
 func helloWorld(w http.ResponseWriter, r *http.Request) {
+	// ! Does not write to page
 	io.WriteString(w, "Hello, world")
-	fmt.Println("starting cron job")
 
 	Viperenv := os.Getenv("API_KEY")
 	coinapi := &coinapi.Coinapi{
@@ -23,15 +23,16 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c := cron.New()
+	fmt.Println("starting cron job")
 
+	// * For local testing. Not validated.
 	//envErr := godotenv.Load(".env")
 	//if envErr != nil {
 	//	fmt.Printf("Could not load .env file")
 	//	os.Exit(1)
 	//}
 
-	c.AddFunc("@every 1m", func() {
-
+	c.AddFunc("@every 2m", func() {
 		ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1MIN", "1")
 
 		stringData := cast.ToString(ohlvcLatest)
@@ -51,21 +52,11 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 	select {}
 }
 func main() {
-	//Viperenv := envVariables.ViperEnvVariable("API_KEY")
-	//coinapi := &coinapi.Coinapi{
-	//	API_KEY: Viperenv,
-	//	Client:  &http.Client{},
-	//}
 
 	port := os.Getenv("PORT")
 	http.HandleFunc("/", helloWorld)
 	log.Print("Listening on port  :" + port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
-	//Viperenv := envVariables.ViperEnvVariable("API_KEY")
-	//coinapi := &coinapi.Coinapi{API_KEY: Viperenv}
-	//
-
-	//log.Info("Create new cron")
 
 }
 

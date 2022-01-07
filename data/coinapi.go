@@ -2,11 +2,9 @@ package coinapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-
 )
 
 type IResty interface {
@@ -29,18 +27,16 @@ type LatestOhlcv struct {
 
 type Coinapi struct {
 	API_KEY string
-	Client   IResty
+	Client  IResty
 }
 
 func (c *Coinapi) GetCoinLatest(symbol string, period string, limit string) []LatestOhlcv {
 
-
-	req, err := http.NewRequest("GET", "https://rest.coinapi.io/v1/ohlcv/" + symbol + "/latest?period_id=" + period + "&limit=" + limit, nil)
+	req, err := http.NewRequest("GET", "https://rest.coinapi.io/v1/ohlcv/"+symbol+"/latest?period_id="+period+"&limit="+limit, nil)
 	req.Header.Set("X-CoinAPI-Key", c.API_KEY)
 	resp, err := c.Client.Do(req)
 
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
 	if err != nil {
 		log.Fatal(err)
 	}
