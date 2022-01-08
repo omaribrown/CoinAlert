@@ -2,40 +2,85 @@ package main
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
 	coinapi "github.com/omaribrown/coinalert/data"
 	"github.com/omaribrown/coinalert/slack"
 	"github.com/robfig/cron"
-	"github.com/spf13/cast"
-	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"reflect"
 )
 
-func coinToSlack(w http.ResponseWriter, r *http.Request) {
-	// ! Does not write to page
-	io.WriteString(w, "Hello, world")
+func main() {
+	//p1 := func(w http.ResponseWriter, _ *http.Request) {
+	//	io.WriteString(w, "Hello")
+	//}
 
+	//port := os.Getenv("PORT")
+	http.HandleFunc("/", RootHandler)
+	//log.Print("Listening on port  :" + port)
+	http.HandleFunc("/cointoslack", coinToSlack)
+	//log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":8080", nil))
+
+}
+
+func RootHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "This is my content.")
+	fmt.Fprintln(w, r.Header)
+
+	defer r.Body.Close()
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintln(w, err)
+	}
+	fmt.Fprintln(w, string(body))
+}
+func mapToStringSlice(slice interface{}, mapFunc func(interface{}) string) []string {
+	s := reflect.ValueOf(slice)
+	if s.Kind() != reflect.Slice {
+		panic("mapToStringSlice() given a non-slice type")
+	}
+	ret := make([]string, s.Len())
+
+	for i := 0; i < s.Len(); i++ {
+		ret[i] = mapFunc(s.Index(i).Interface())
+	}
+
+	return ret
+}
+func coinToSlack(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(200)
+	fmt.Fprintln(w, "Running cointoslack. Manually added a 200 Status OK.")
+
+	// * get local env's
+	envErr := godotenv.Load(".env")
+	if envErr != nil {
+		fmt.Printf("Could not load .env file")
+		os.Exit(1)
+	}
 	Viperenv := os.Getenv("API_KEY")
 	coinapi := &coinapi.Coinapi{
 		API_KEY: Viperenv,
 		Client:  &http.Client{},
+		// * For local testing. Not validated.
 	}
-
+	fmt.Println(Viperenv)
 	c := cron.New()
+	fmt.Fprintf(w, "Starting cron job")
 	fmt.Println("starting cron job")
 
-	// * For local testing. Not validated.
-	//envErr := godotenv.Load(".env")
-	//if envErr != nil {
-	//	fmt.Printf("Could not load .env file")
-	//	os.Exit(1)
-	//}
-
-	c.AddFunc("@every 2m", func() {
+	c.AddFunc("@every 1m", func() {
 		ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1MIN", "1")
 
-		stringData := cast.ToString(ohlvcLatest)
+		// * Stringify for slack
+
+		//stringData := cast.ToString(ohlvcLatest)
+		//fmt.Println(stringData)
+		//fmt.Fprintf(w, stringData)
 		fmt.Println("Crypto Data: ", ohlvcLatest)
 
 		slackService := &slack.SlackService{
@@ -50,14 +95,6 @@ func coinToSlack(w http.ResponseWriter, r *http.Request) {
 	})
 	c.Start()
 	select {}
-}
-func main() {
-
-	port := os.Getenv("PORT")
-	http.HandleFunc("/", coinToSlack)
-	log.Print("Listening on port  :" + port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
-
 }
 
 // Period ID's:
