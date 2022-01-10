@@ -14,23 +14,16 @@ import (
 )
 
 func main() {
-	//p1 := func(w http.ResponseWriter, _ *http.Request) {
-	//	io.WriteString(w, "Hello")
-	//}
 
-	//port := os.Getenv("PORT")
+	port := os.Getenv("PORT")
 	http.HandleFunc("/", RootHandler)
-	//log.Print("Listening on port  :" + port)
-	http.HandleFunc("/cointoslack", coinToSlack)
-	//log.Fatal(http.ListenAndServe(":"+port, nil))
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":"+port, nil))
+	coinToSlack()
+	//log.Fatal(http.ListenAndServe(":8080", nil))
 
 }
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "This is my content.")
-	fmt.Fprintln(w, r.Header)
-
 	defer r.Body.Close()
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -40,9 +33,7 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, string(body))
 }
 
-func coinToSlack(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(200)
-
+func coinToSlack() {
 	envErr := godotenv.Load(".env")
 	if envErr != nil {
 		fmt.Printf("Could not load .env file")
@@ -65,15 +56,11 @@ func coinToSlack(w http.ResponseWriter, r *http.Request) {
 	c.AddFunc("@every 1m", func() {
 		ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1MIN", "1")
 
-		// Marshal data for Slack
 		remarshal, err := json.Marshal(ohlvcLatest)
 		if err != nil {
 			panic(err)
 		}
 		stringData := string(remarshal)
-		fmt.Println("stringdata: ", stringData)
-
-		fmt.Println("Crypto Data: ", ohlvcLatest)
 
 		slackService.SendSlackMessage(slack.SlackMessage{
 			Pretext: "Incoming crypto data...",
@@ -85,7 +72,6 @@ func coinToSlack(w http.ResponseWriter, r *http.Request) {
 }
 
 // Period ID's:
-
 // Second	1SEC, 2SEC, 3SEC, 4SEC, 5SEC, 6SEC, 10SEC, 15SEC, 20SEC, 30SEC
 // Minute	1MIN, 2MIN, 3MIN, 4MIN, 5MIN, 6MIN, 10MIN, 15MIN, 20MIN, 30MIN
 // Hour	1HRS, 2HRS, 3HRS, 4HRS, 6HRS, 8HRS, 12HRS
