@@ -17,8 +17,9 @@ func main() {
 
 	port := os.Getenv("PORT")
 	http.HandleFunc("/", RootHandler)
+	go coinToSlack()
 	log.Fatal(http.ListenAndServe(":"+port, nil))
-	coinToSlack()
+
 	//log.Fatal(http.ListenAndServe(":8080", nil))
 
 }
