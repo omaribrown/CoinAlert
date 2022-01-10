@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/joho/godotenv"
 	coinapi "github.com/omaribrown/coinalert/data"
 	"github.com/omaribrown/coinalert/slack"
 	"github.com/robfig/cron"
@@ -35,11 +34,11 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func coinToSlack() {
-	envErr := godotenv.Load(".env")
-	if envErr != nil {
-		fmt.Printf("Could not load .env file")
-		os.Exit(1)
-	}
+	//envErr := godotenv.Load(".env")
+	//if envErr != nil {
+	//	fmt.Printf("Could not load .env file")
+	//	os.Exit(1)
+	//}
 
 	CoinAPIKey := os.Getenv("API_KEY")
 	coinapi := &coinapi.Coinapi{
