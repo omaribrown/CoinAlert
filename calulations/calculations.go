@@ -11,10 +11,10 @@ type indicators struct {
 }
 
 type bolBandCalculator struct {
-	bollingerBandCandle coinapi.LatestOhlcv // extra cred: add upper, lower to buffer channel instead
+	bollingerBandCandle coinapi.LatestOhlcv
 	bolUpper            float64
 	bolLower            float64
-	candles             []coinapi.LatestOhlcv // ! needs to cap at 20 for mov avg
+	candles             []coinapi.LatestOhlcv
 	size                int
 }
 
@@ -59,9 +59,9 @@ func (b *bolBandCalculator) add(candle coinapi.LatestOhlcv) {
 	}
 	b.candles = b.candles[1:]
 
-	bollBands := make(chan coinapi.LatestOhlcv, 20)
-	bollBands <- b.bollingerBandCandle
-	fmt.Println("channel holding: ", <-bollBands)
+	bollBand := make(chan coinapi.LatestOhlcv, 20)
+	bollBand <- b.bollingerBandCandle
+	fmt.Println("channel holding: ", <-bollBand)
 }
 
 func standardDev(data []coinapi.LatestOhlcv, size int) float64 {
