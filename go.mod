@@ -4,10 +4,13 @@ module github.com/omaribrown/coinalert
 
 go 1.17
 
-require gopkg.in/resty.v0 v0.4.1 // indirect
+require (
+	github.com/joho/godotenv v1.4.0 // indirect
+	gopkg.in/resty.v0 v0.4.1 // indirect
+)
 
 require (
-	github.com/joho/godotenv v1.4.0
+	github.com/montanaflynn/stats v0.6.6
 	github.com/robfig/cron v1.2.0
 )
 
@@ -38,7 +41,7 @@ require (
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
-	github.com/spf13/cast v1.4.1
+	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.10.0
