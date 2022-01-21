@@ -15,6 +15,7 @@ type SlackService struct {
 }
 
 type SlackMessage struct {
+	Title   string `json:"title,omitempty"`
 	Pretext string `json:"pretext,omitempty"`
 	Text    string `json:"text,omitempty"`
 }
@@ -31,6 +32,7 @@ func (s SlackService) SendSlackMessage(message SlackMessage) {
 	client := slack.New(s.SlackToken, slack.OptionDebug(true))
 
 	attachment := slack.Attachment{
+		Title:   message.Title,
 		Pretext: message.Pretext,
 		Text:    message.Text,
 	}
