@@ -1,6 +1,7 @@
 package triggers
 
 import (
+	"fmt"
 	coinapi "github.com/omaribrown/coinalert/data"
 	"github.com/omaribrown/coinalert/slack"
 	"os"
@@ -23,6 +24,7 @@ func (s *slackTrigger) sendSignal(candle chan coinapi.LatestOhlcv, message chan 
 		SlackToken:     os.Getenv("SLACK_AUTH_TOKEN"),
 		SlackChannelID: os.Getenv("SLACK_CHANNEL_ID"),
 	}
-
+	fmt.Println(slackService.SlackChannelID)
+	fmt.Println(slackService.SlackToken)
 	slackService.SendSlackMessage(slackMessage)
 }
