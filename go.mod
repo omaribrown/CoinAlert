@@ -5,12 +5,12 @@ module github.com/omaribrown/coinalert
 go 1.17
 
 require (
-	github.com/joho/godotenv v1.4.0 // indirect
+	github.com/montanaflynn/stats v0.6.6 // indirect
 	gopkg.in/resty.v0 v0.4.1 // indirect
 )
 
 require (
-	github.com/montanaflynn/stats v0.6.6
+	github.com/joho/godotenv v1.4.0
 	github.com/robfig/cron v1.2.0
 )
 

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	_ "github.com/omaribrown/coinalert/calulations"
 	coinapi "github.com/omaribrown/coinalert/data"
 	"github.com/omaribrown/coinalert/slack"
 	"github.com/robfig/cron"
@@ -13,6 +13,9 @@ import (
 )
 
 func main() {
+	//bollBand := make(chan coinapi.LatestOhlcv)
+	//test := new(triggers.BolBandTrigger)
+	//go test.UpperbbBreakout(bollBand, triggerChan)
 
 	port := os.Getenv("PORT")
 	http.HandleFunc("/", RootHandler)
@@ -34,6 +37,8 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func coinToSlack() {
+	CalculationChan := make(chan coinapi.LatestOhlcv, 60)
+
 	//envErr := godotenv.Load(".env")
 	//if envErr != nil {
 	//	fmt.Printf("Could not load .env file")
@@ -54,18 +59,19 @@ func coinToSlack() {
 	fmt.Println("starting cron job")
 
 	c.AddFunc("@every 1m", func() {
-		ohlvcLatest := coinapi.GetCoinLatest("BTC/USD", "1MIN", "1")
 
-		remarshal, err := json.Marshal(ohlvcLatest)
-		if err != nil {
-			panic(err)
-		}
-		stringData := string(remarshal)
+		go coinapi.GetCoinLatest("BTC/USD", "1MIN", "1", CalculationChan)
 
-		slackService.SendSlackMessage(slack.SlackMessage{
-			Pretext: "Incoming crypto data...",
-			Text:    stringData,
-		})
+		//remarshal, err := json.Marshal(ohlvcLatest)
+		//if err != nil {
+		//	panic(err)
+		//}
+		//stringData := string(remarshal)
+		//
+		//slackService.SendSlackMessage(slack.SlackMessage{
+		//	Pretext: "Incoming crypto data...",
+		//	Text:    stringData,
+		//})
 	})
 	c.Start()
 	select {}

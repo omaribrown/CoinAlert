@@ -1,7 +1,6 @@
 package calulations
 
 import (
-	"fmt"
 	coinapi "github.com/omaribrown/coinalert/data"
 	"math"
 )
@@ -33,6 +32,8 @@ func New(props Props) *bolBandCalculator {
 }
 
 func (b *bolBandCalculator) add(candle coinapi.LatestOhlcv) {
+	TriggerChan := make(chan coinapi.LatestOhlcv)
+
 	b.candles = append(b.candles, candle)
 	if len(b.candles) < b.size {
 		//b.bollingerBandCandle =  candle
@@ -59,9 +60,7 @@ func (b *bolBandCalculator) add(candle coinapi.LatestOhlcv) {
 	}
 	b.candles = b.candles[1:]
 
-	bollBand := make(chan coinapi.LatestOhlcv, 20)
-	bollBand <- b.bollingerBandCandle
-	fmt.Println("channel holding: ", <-bollBand)
+	TriggerChan <- b.bollingerBandCandle
 }
 
 func standardDev(data []coinapi.LatestOhlcv, size int) float64 {

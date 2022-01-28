@@ -1,11 +1,13 @@
 package triggers
 
 import (
+	"encoding/json"
 	"fmt"
 	coinapi "github.com/omaribrown/coinalert/data"
 	"github.com/omaribrown/coinalert/slack"
-	"os"
+	"log"
 )
+import _ "github.com/joho/godotenv/autoload"
 
 type slackTrigger struct {
 	message          slack.SlackMessage
@@ -13,18 +15,19 @@ type slackTrigger struct {
 	triggeredCandles []coinapi.LatestOhlcv
 }
 
-func (s *slackTrigger) sendSignal(candle chan coinapi.LatestOhlcv, message chan slack.SlackMessage) {
+func (s *slackTrigger) sendSignal(NotifChan chan coinapi.LatestOhlcv) {
 	// Store triggered candles
-	s.triggeredCandles = append(s.triggeredCandles, <-candle)
-	// Create & send slack message
-	var slackMessage slack.SlackMessage
-	slackMessage = <-message
-
-	slackService := &slack.SlackService{
-		SlackToken:     os.Getenv("SLACK_AUTH_TOKEN"),
-		SlackChannelID: os.Getenv("SLACK_CHANNEL_ID"),
+	for {
+		fmt.Println("Slacktrigger received NotifChan running...")
+		s.triggeredCandles = append(s.triggeredCandles, <-NotifChan)
+		slackData := <-NotifChan
+		stringData, err := json.Marshal(slackData)
+		if err != nil {
+			log.Fatal(err)
+		}
+		slackMessage := slack.GenerateNewMessage(string(stringData), "Lower Bol Band Breakout")
+		sendSlack := new(slack.SlackService)
+		sendSlack.SendSlackMessage(slackMessage)
 	}
-	fmt.Println(slackService.SlackChannelID)
-	fmt.Println(slackService.SlackToken)
-	slackService.SendSlackMessage(slackMessage)
+
 }
