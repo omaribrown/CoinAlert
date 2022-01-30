@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/omaribrown/coinalert/calulations"
 	_ "github.com/omaribrown/coinalert/calulations"
 	coinapi "github.com/omaribrown/coinalert/data"
 	"github.com/omaribrown/coinalert/slack"
+	"github.com/omaribrown/coinalert/triggers"
 	"github.com/robfig/cron"
 	"io/ioutil"
 	"log"
@@ -38,6 +40,8 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 
 func coinToSlack() {
 	CalculationChan := make(chan coinapi.LatestOhlcv, 60)
+	TriggerChan := make(chan coinapi.LatestOhlcv)
+	NotifChan := make(chan coinapi.LatestOhlcv)
 
 	//envErr := godotenv.Load(".env")
 	//if envErr != nil {
@@ -50,6 +54,8 @@ func coinToSlack() {
 		API_KEY: CoinAPIKey,
 		Client:  &http.Client{},
 	}
+	calculator := new(calulations.Calculations)
+	notification := new(triggers.BolBandTrigger)
 
 	slackService := &slack.SlackService{
 		SlackToken:     os.Getenv("SLACK_AUTH_TOKEN"),
@@ -61,6 +67,8 @@ func coinToSlack() {
 	c.AddFunc("@every 1m", func() {
 
 		go coinapi.GetCoinLatest("BTC/USD", "1MIN", "1", CalculationChan)
+		go calculator.SendToCalc(CalculationChan, TriggerChan)
+		go notification.
 
 		//remarshal, err := json.Marshal(ohlvcLatest)
 		//if err != nil {

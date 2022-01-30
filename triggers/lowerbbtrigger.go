@@ -4,16 +4,16 @@ import (
 	coinapi "github.com/omaribrown/coinalert/data"
 )
 
-type bollingerBands interface {
-	bbBreakout(chan coinapi.LatestOhlcv)
-}
+//type bollingerBands interface {
+//	bbBreakout(chan coinapi.LatestOhlcv)
+//}
 
-type bolBandTriggers struct {
+type BolBandTriggers struct {
 	bollingerBandCandle coinapi.LatestOhlcv
 }
 
-func (b *bolBandTriggers) bbBreakout(TriggerChan chan coinapi.LatestOhlcv) {
-	NotifChan := make(chan coinapi.LatestOhlcv)
+func (b *BolBandTriggers) LowerBbBreakout(TriggerChan chan coinapi.LatestOhlcv, NotifChan chan coinapi.LatestOhlcv) {
+
 	for {
 		bbData := <-TriggerChan
 		if bbData.PriceClose < bbData.BollingerBandLower {

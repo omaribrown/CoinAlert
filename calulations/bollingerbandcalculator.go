@@ -31,8 +31,7 @@ func New(props Props) *bolBandCalculator {
 	}
 }
 
-func (b *bolBandCalculator) add(candle coinapi.LatestOhlcv) {
-	TriggerChan := make(chan coinapi.LatestOhlcv)
+func (b *bolBandCalculator) add(candle coinapi.LatestOhlcv, TriggerChan chan coinapi.LatestOhlcv) {
 
 	b.candles = append(b.candles, candle)
 	if len(b.candles) < b.size {
