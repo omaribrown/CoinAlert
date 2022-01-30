@@ -16,7 +16,6 @@ type SlackTrigger struct {
 }
 
 func (s *SlackTrigger) SendSignal(NotifChan chan coinapi.LatestOhlcv, SlackService *slack.SlackService) {
-	// Store triggered candles
 	for {
 		fmt.Println("Slacktrigger received NotifChan running...")
 		s.triggeredCandles = append(s.triggeredCandles, <-NotifChan)

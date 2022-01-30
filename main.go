@@ -15,10 +15,6 @@ import (
 )
 
 func main() {
-	//bollBand := make(chan coinapi.LatestOhlcv)
-	//test := new(triggers.BolBandTrigger)
-	//go test.UpperbbBreakout(bollBand, triggerChan)
-
 	port := os.Getenv("PORT")
 	http.HandleFunc("/", RootHandler)
 	go coinToSlack()
