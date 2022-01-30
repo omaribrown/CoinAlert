@@ -9,13 +9,13 @@ import (
 )
 import _ "github.com/joho/godotenv/autoload"
 
-type slackTrigger struct {
+type SlackTrigger struct {
 	message          slack.SlackMessage
 	candle           coinapi.LatestOhlcv
 	triggeredCandles []coinapi.LatestOhlcv
 }
 
-func (s *slackTrigger) sendSignal(NotifChan chan coinapi.LatestOhlcv) {
+func (s *SlackTrigger) SendSignal(NotifChan chan coinapi.LatestOhlcv, SlackService *slack.SlackService) {
 	// Store triggered candles
 	for {
 		fmt.Println("Slacktrigger received NotifChan running...")
@@ -26,8 +26,7 @@ func (s *slackTrigger) sendSignal(NotifChan chan coinapi.LatestOhlcv) {
 			log.Fatal(err)
 		}
 		slackMessage := slack.GenerateNewMessage(string(stringData), "Lower Bol Band Breakout")
-		sendSlack := new(slack.SlackService)
-		sendSlack.SendSlackMessage(slackMessage)
+		SlackService.SendSlackMessage(slackMessage)
 	}
 
 }

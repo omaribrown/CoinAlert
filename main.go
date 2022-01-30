@@ -55,9 +55,10 @@ func coinToSlack() {
 		Client:  &http.Client{},
 	}
 	calculator := new(calulations.Calculations)
-	notification := new(triggers.BolBandTrigger)
+	strategy := new(triggers.BolBandTriggers)
+	notification := new(triggers.SlackTrigger)
 
-	slackService := &slack.SlackService{
+	SlackService := &slack.SlackService{
 		SlackToken:     os.Getenv("SLACK_AUTH_TOKEN"),
 		SlackChannelID: os.Getenv("SLACK_CHANNEL_ID"),
 	}
@@ -68,7 +69,8 @@ func coinToSlack() {
 
 		go coinapi.GetCoinLatest("BTC/USD", "1MIN", "1", CalculationChan)
 		go calculator.SendToCalc(CalculationChan, TriggerChan)
-		go notification.
+		go strategy.LowerBbBreakout(TriggerChan, NotifChan)
+		go notification.SendSignal(NotifChan, SlackService)
 
 		//remarshal, err := json.Marshal(ohlvcLatest)
 		//if err != nil {

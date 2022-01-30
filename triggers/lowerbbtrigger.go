@@ -25,10 +25,10 @@ func (b *BolBandTriggers) LowerBbBreakout(TriggerChan chan coinapi.LatestOhlcv, 
 	//b.bbCandles = append(b.bbCandles, <-bollBand)
 	//bbSlackData := make(chan coinapi.LatestOhlcv, 2)
 	//bbSlackMessage := make(chan slack.SlackMessage, 2)
-	//slackTrigger := new(slackTrigger)
+	//SlackTrigger := new(SlackTrigger)
 	//// compare the close price to any previous bol high or bol close
 	//for _, candle := range b.bbCandles {
-	//	// slackTrigger breakout candle through channel to slack file for slack notification
+	//	// SlackTrigger breakout candle through channel to slack file for slack notification
 	//	if candle.PriceClose > candle.BollingerBandUpper {
 	//		fmt.Println("Price broke upper band at close: ", candle.PriceClose, " Sending data to slack...")
 	//		bbSlackData <- candle
@@ -42,7 +42,7 @@ func (b *BolBandTriggers) LowerBbBreakout(TriggerChan chan coinapi.LatestOhlcv, 
 	//			Text:    "Target Entry: , Stop Loss: , Price Target: ",
 	//		}
 	//
-	//		go slackTrigger.sendSignal(bbSlackData, bbSlackMessage)
+	//		go SlackTrigger.sendSignal(bbSlackData, bbSlackMessage)
 	//		time.Sleep(1 * time.Second)
 	//	} else if candle.PriceClose < candle.BollingerBandLower {
 	//		bbSlackData <- candle
@@ -57,7 +57,7 @@ func (b *BolBandTriggers) LowerBbBreakout(TriggerChan chan coinapi.LatestOhlcv, 
 	//			Text:    "Target Entry: , Stop Loss: , Price Target: ",
 	//		}
 	//
-	//		go slackTrigger.sendSignal(bbSlackData, bbSlackMessage)
+	//		go SlackTrigger.sendSignal(bbSlackData, bbSlackMessage)
 	//		time.Sleep(1 * time.Second)
 	//
 	//	}

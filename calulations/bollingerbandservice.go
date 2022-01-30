@@ -1,6 +1,8 @@
 package calulations
 
-import coinapi "github.com/omaribrown/coinalert/data"
+import (
+	coinapi "github.com/omaribrown/coinalert/data"
+)
 
 type Calculations struct {
 	CalculationChan chan coinapi.LatestOhlcv
