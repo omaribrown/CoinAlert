@@ -59,7 +59,7 @@ func TestCalculations_SendToCalc(t *testing.T) {
 
 		test := new(Calculations)
 		go test.SendToCalc(CalculationChan, TriggerChan)
-
+		// read from channel 37 times & compare last value
 		assert.Equal(t, 37, count)
 	})
 }

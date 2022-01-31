@@ -61,23 +61,13 @@ func coinToSlack() {
 	c := cron.New()
 	fmt.Println("starting cron job")
 
+	go calculator.SendToCalc(CalculationChan, TriggerChan)
+	go strategy.LowerBbBreakout(TriggerChan, NotifChan)
+	go notification.SendSignal(NotifChan, SlackService)
+
 	c.AddFunc("@every 1m", func() {
-
 		go coinapi.GetCoinLatest("BTC/USD", "1MIN", "1", CalculationChan)
-		go calculator.SendToCalc(CalculationChan, TriggerChan)
-		go strategy.LowerBbBreakout(TriggerChan, NotifChan)
-		go notification.SendSignal(NotifChan, SlackService)
 
-		//remarshal, err := json.Marshal(ohlvcLatest)
-		//if err != nil {
-		//	panic(err)
-		//}
-		//stringData := string(remarshal)
-		//
-		//slackService.SendSlackMessage(slack.SlackMessage{
-		//	Pretext: "Incoming crypto data...",
-		//	Text:    stringData,
-		//})
 	})
 	c.Start()
 	select {}
