@@ -66,7 +66,7 @@ func coinToSlack() {
 	go notification.SendSignal(NotifChan, SlackService)
 
 	c.AddFunc("@every 1m", func() {
-		go coinapi.GetCoinLatest("BTC/USD", "1MIN", "1", CalculationChan)
+		go coinapi.GetCoinLatest("ETH/USD", "1MIN", "60", CalculationChan)
 
 	})
 	c.Start()
