@@ -2,6 +2,7 @@ package coinapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -45,6 +46,7 @@ func (c *Coinapi) GetCoinLatest(symbol string, period string, limit string, Calc
 
 	var Newstruct []LatestOhlcv
 	json.Unmarshal(body, &Newstruct)
+	fmt.Println(Newstruct)
 	for v, _ := range Newstruct {
 		CalculationChan <- Newstruct[v]
 	}
