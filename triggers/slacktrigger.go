@@ -13,19 +13,21 @@ type SlackTrigger struct {
 	message          slack.SlackMessage
 	candle           coinapi.LatestOhlcv
 	triggeredCandles []coinapi.LatestOhlcv
+	NotifChan        chan coinapi.LatestOhlcv
+	SlackService     *slack.SlackService
 }
 
-func (s *SlackTrigger) SendSignal(NotifChan chan coinapi.LatestOhlcv, SlackService *slack.SlackService) {
+func (s *SlackTrigger) SendSignal() {
 	for {
 		fmt.Println("Slacktrigger received NotifChan running...")
-		s.triggeredCandles = append(s.triggeredCandles, <-NotifChan)
-		slackData := <-NotifChan
+		s.triggeredCandles = append(s.triggeredCandles, <-s.NotifChan)
+		slackData := <-s.NotifChan
 		stringData, err := json.Marshal(slackData)
 		if err != nil {
 			log.Fatal(err)
 		}
 		slackMessage := slack.GenerateNewMessage(string(stringData), "Lower Bol Band Breakout")
-		SlackService.SendSlackMessage(slackMessage)
+		s.SlackService.SendSlackMessage(slackMessage)
 	}
 
 }

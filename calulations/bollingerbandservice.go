@@ -6,12 +6,14 @@ import (
 
 type Calculations struct {
 	CalculationChan chan coinapi.LatestOhlcv
+	TriggerChan     chan coinapi.LatestOhlcv
 }
 
-func (c *Calculations) SendToCalc(CalculationChan chan coinapi.LatestOhlcv, TriggerChan chan coinapi.LatestOhlcv) {
+func (c *Calculations) SendToCalc() {
+
 	bolCalc := New(Props{size: 20})
 	for {
-		calcData := <-CalculationChan
-		bolCalc.add(calcData, TriggerChan)
+		calcData := <-c.CalculationChan
+		bolCalc.add(calcData, c.TriggerChan)
 	}
 }

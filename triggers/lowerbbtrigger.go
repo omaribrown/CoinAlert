@@ -5,14 +5,15 @@ import (
 )
 
 type BolBandTriggers struct {
-	bollingerBandCandle coinapi.LatestOhlcv
+	TriggerChan chan coinapi.LatestOhlcv
+	NotifChan   chan coinapi.LatestOhlcv
 }
 
-func (b *BolBandTriggers) LowerBbBreakout(TriggerChan chan coinapi.LatestOhlcv, NotifChan chan coinapi.LatestOhlcv) {
+func (b *BolBandTriggers) LowerBbBreakout() {
 	for {
-		bbData := <-TriggerChan
+		bbData := <-b.TriggerChan
 		if bbData.PriceClose < bbData.BollingerBandLower {
-			NotifChan <- bbData
+			b.NotifChan <- bbData
 		}
 	}
 }

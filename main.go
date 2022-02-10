@@ -20,8 +20,6 @@ func main() {
 	go coinToSlack()
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 
-	//log.Fatal(http.ListenAndServe(":8080", nil))
-
 }
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,38 +33,43 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func coinToSlack() {
-	CalculationChan := make(chan coinapi.LatestOhlcv, 60)
+	calculationChan := make(chan coinapi.LatestOhlcv, 60)
 	TriggerChan := make(chan coinapi.LatestOhlcv)
-	NotifChan := make(chan coinapi.LatestOhlcv)
+	notifChan := make(chan coinapi.LatestOhlcv)
 
-	//envErr := godotenv.Load(".env")
-	//if envErr != nil {
-	//	fmt.Printf("Could not load .env file")
-	//	os.Exit(1)
-	//}
+	// load env with env.go implementation
 
 	CoinAPIKey := os.Getenv("API_KEY")
 	coinapi := &coinapi.Coinapi{
 		API_KEY: CoinAPIKey,
 		Client:  &http.Client{},
 	}
-	calculator := new(calulations.Calculations)
-	strategy := new(triggers.BolBandTriggers)
-	notification := new(triggers.SlackTrigger)
-
-	SlackService := &slack.SlackService{
-		SlackToken:     os.Getenv("SLACK_AUTH_TOKEN"),
-		SlackChannelID: os.Getenv("SLACK_CHANNEL_ID"),
+	calculator := &calulations.Calculations{
+		CalculationChan: calculationChan,
+		TriggerChan:     TriggerChan,
 	}
+	strategy := &triggers.BolBandTriggers{
+		TriggerChan: TriggerChan,
+		NotifChan:   notifChan,
+	}
+
+	notification := &triggers.SlackTrigger{
+		NotifChan: notifChan,
+		SlackService: &slack.SlackService{
+			SlackToken:     os.Getenv("SLACK_AUTH_TOKEN"),
+			SlackChannelID: os.Getenv("SLACK_CHANNEL_ID"),
+		},
+	}
+	var data coinapi.DataService
 	c := cron.New()
 	fmt.Println("starting cron job")
 
-	go calculator.SendToCalc(CalculationChan, TriggerChan)
-	go strategy.LowerBbBreakout(TriggerChan, NotifChan)
-	go notification.SendSignal(NotifChan, SlackService)
+	go calculator.SendToCalc()
+	go strategy.LowerBbBreakout()
+	go notification.SendSignal()
 
 	c.AddFunc("@every 1m", func() {
-		go coinapi.GetCoinLatest("ETH/USD", "1MIN", "60", CalculationChan)
+		go coinapi.GetCoinLatest("ETH/USD", "1MIN", "60", calculationChan)
 
 	})
 	c.Start()

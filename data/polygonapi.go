@@ -35,7 +35,7 @@ type Polygon struct {
 	Client  IResty
 }
 
-func (p *Polygon) GetCoinLatest(cryptoTicker string, multiplier string, timespan string, limit string) []LatestOhlcv {
+func (p *Polygon) GetCoinLatest(cryptoTicker string, multiplier string, timespan string, limit string, CalculationChan chan LatestOhlcv) []LatestOhlcv {
 
 	url := "https://api.polygon.io/v2/aggs/ticker/X:" + cryptoTicker + "/range/" + multiplier + "/" + timespan + "/" + getTimeFormatted() + "/" + getTimeFormatted() + "?adjusted=true&sort=desc&limit=" + limit
 
@@ -86,7 +86,11 @@ func (p *Polygon) GetCoinLatest(cryptoTicker string, multiplier string, timespan
 		})
 
 	}
+	candles = reverseCandles(candles)
 	fmt.Println(candles)
+	for v, _ := range candles {
+		CalculationChan <- candles[v]
+	}
 	return candles
 }
 
@@ -103,4 +107,12 @@ func getTimeFormatted() string {
 	tm := t.Format("2006-01-02")
 	//fmt.Println("YYYY-MM-DD : ", tm)
 	return tm
+}
+
+func reverseCandles(candles []LatestOhlcv) []LatestOhlcv {
+	for i := 0; i < len(candles)/2; i++ {
+		j := len(candles) - i - 1
+		candles[i], candles[j] = candles[j], candles[i]
+	}
+	return candles
 }
