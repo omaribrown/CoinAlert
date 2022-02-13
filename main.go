@@ -5,6 +5,7 @@ import (
 	"github.com/omaribrown/coinalert/calulations"
 	_ "github.com/omaribrown/coinalert/calulations"
 	coinapi "github.com/omaribrown/coinalert/data"
+	envVariables "github.com/omaribrown/coinalert/envvar"
 	"github.com/omaribrown/coinalert/slack"
 	"github.com/omaribrown/coinalert/triggers"
 	"github.com/robfig/cron"
@@ -17,7 +18,33 @@ import (
 func main() {
 	port := os.Getenv("PORT")
 	http.HandleFunc("/", RootHandler)
-	go coinToSlack()
+	PolygonAPIKey := os.Getenv("POLY_API_KEY")
+	CoinAPIKey := os.Getenv("API_KEY")
+	polygon := &coinapi.Polygon{
+		API_KEY: PolygonAPIKey,
+		Client:  &http.Client{},
+	}
+	coin := &coinapi.Coinapi{
+		API_KEY: CoinAPIKey,
+		Client:  &http.Client{},
+	}
+	calculationChan := make(chan coinapi.LatestOhlcv, 60)
+
+	params := &coinapi.Params{
+		Symbol:          "ETHUSD",
+		Period:          "1MIN",
+		Limit:           "60",
+		CalculationChan: calculationChan,
+	}
+	var dataService coinapi.IDataService
+	ourDataService := coin
+
+	polygonEnabled := true
+	if polygonEnabled {
+		dataService = polygon
+	}
+
+	go coinToSlack(ourDataService)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 
 }
@@ -32,18 +59,23 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, string(body))
 }
 
-func coinToSlack() {
-	calculationChan := make(chan coinapi.LatestOhlcv, 60)
+func coinToSlack(dataService coinapi.IDataService) {
 	TriggerChan := make(chan coinapi.LatestOhlcv)
 	notifChan := make(chan coinapi.LatestOhlcv)
 
 	// load env with env.go implementation
-
-	CoinAPIKey := os.Getenv("API_KEY")
-	coinapi := &coinapi.Coinapi{
-		API_KEY: CoinAPIKey,
-		Client:  &http.Client{},
+	env, err := envVariables.New(envVariables.Props{DotEnvPath: ".env"})
+	if err != nil {
+		log.Fatal(err)
 	}
+	env.Get("")
+
+	//CoinAPIKey := os.Getenv("API_KEY")
+	//coinapi := &coinapi.Coinapi{
+	//	API_KEY: CoinAPIKey,
+	//	Client:  &http.Client{},
+	//}
+	data := &coinapi.IDataService
 	calculator := &calulations.Calculations{
 		CalculationChan: calculationChan,
 		TriggerChan:     TriggerChan,
@@ -60,7 +92,7 @@ func coinToSlack() {
 			SlackChannelID: os.Getenv("SLACK_CHANNEL_ID"),
 		},
 	}
-	var data coinapi.DataService
+
 	c := cron.New()
 	fmt.Println("starting cron job")
 
@@ -70,6 +102,7 @@ func coinToSlack() {
 
 	c.AddFunc("@every 1m", func() {
 		go coinapi.GetCoinLatest("ETH/USD", "1MIN", "60", calculationChan)
+		go dataService.GetCoinLatest(params)
 
 	})
 	c.Start()

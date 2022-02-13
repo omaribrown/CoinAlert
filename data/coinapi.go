@@ -33,9 +33,10 @@ type Coinapi struct {
 	Client  IResty
 }
 
-func (c *Coinapi) GetCoinLatest(symbol string, period string, limit string, CalculationChan chan LatestOhlcv) []LatestOhlcv {
+//symbol string, period string, limit string, CalculationChan chan LatestOhlcv
+func (c *Coinapi) GetCoinLatest(params Params) []LatestOhlcv {
 
-	req, err := http.NewRequest("GET", "https://rest.coinapi.io/v1/ohlcv/"+symbol+"/latest?period_id="+period+"&limit="+limit, nil)
+	req, err := http.NewRequest("GET", "https://rest.coinapi.io/v1/ohlcv/"+params.Symbol+"/latest?period_id="+params.Period+"&limit="+params.Limit, nil)
 	req.Header.Set("X-CoinAPI-Key", c.API_KEY)
 	resp, err := c.Client.Do(req)
 
@@ -48,7 +49,7 @@ func (c *Coinapi) GetCoinLatest(symbol string, period string, limit string, Calc
 	json.Unmarshal(body, &Newstruct)
 	fmt.Println(Newstruct)
 	for v, _ := range Newstruct {
-		CalculationChan <- Newstruct[v]
+		params.CalculationChan <- Newstruct[v]
 	}
 	return Newstruct
 

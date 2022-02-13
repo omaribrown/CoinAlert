@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -35,9 +36,11 @@ type Polygon struct {
 	Client  IResty
 }
 
-func (p *Polygon) GetCoinLatest(cryptoTicker string, multiplier string, timespan string, limit string, CalculationChan chan LatestOhlcv) []LatestOhlcv {
+// cryptoTicker string, multiplier string, timespan string, limit string, CalculationChan chan LatestOhlcv
+func (p *Polygon) GetCoinLatest(params Params) []LatestOhlcv {
+	timespan := formatTimespan(params.period)
 
-	url := "https://api.polygon.io/v2/aggs/ticker/X:" + cryptoTicker + "/range/" + multiplier + "/" + timespan + "/" + getTimeFormatted() + "/" + getTimeFormatted() + "?adjusted=true&sort=desc&limit=" + limit
+	url := "https://api.polygon.io/v2/aggs/ticker/X:" + params.symbol + "/range/" + timespan[0] + "/" + formatUnit(params.period) + "/" + getTodaysDate() + "/" + getTodaysDate() + "?adjusted=true&sort=desc&limit=" + params.limit
 
 	polyClient := http.Client{Timeout: time.Second * 2}
 
@@ -84,14 +87,24 @@ func (p *Polygon) GetCoinLatest(cryptoTicker string, multiplier string, timespan
 			BollingerBandUpper: 0,
 			BollingerBandLower: 0,
 		})
-
 	}
 	candles = reverseCandles(candles)
 	fmt.Println(candles)
 	for v, _ := range candles {
-		CalculationChan <- candles[v]
+		params.CalculationChan <- candles[v]
 	}
 	return candles
+}
+
+func formatTimespan(period string) []string {
+	return strings.SplitAfterN(period, "1", 2)
+}
+
+// needed in coinapi.go
+func formatSymbol(symbol string) string {
+	index := 2
+	insertSlash := symbol[:index] + "/" + symbol[index:]
+	return insertSlash
 }
 
 func unixToRFC(unix int64) string {
@@ -102,7 +115,7 @@ func unixToRFC(unix int64) string {
 	return t.String()
 }
 
-func getTimeFormatted() string {
+func getTodaysDate() string {
 	t := time.Now()
 	tm := t.Format("2006-01-02")
 	//fmt.Println("YYYY-MM-DD : ", tm)
@@ -115,4 +128,21 @@ func reverseCandles(candles []LatestOhlcv) []LatestOhlcv {
 		candles[i], candles[j] = candles[j], candles[i]
 	}
 	return candles
+}
+
+func formatUnit(period string) string {
+	unit := formatTimespan(period)
+
+	p := unit[1]
+	switch p {
+	case "MIN":
+		p = "minute"
+	case "HRS":
+		p = "hour"
+	case "DAY":
+		p = "day"
+	default:
+		return "minute"
+	}
+	return p
 }
