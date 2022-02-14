@@ -20,6 +20,7 @@ func main() {
 	http.HandleFunc("/", RootHandler)
 	PolygonAPIKey := os.Getenv("POLY_API_KEY")
 	CoinAPIKey := os.Getenv("API_KEY")
+	var dataService coinapi.IDataService
 	polygon := &coinapi.Polygon{
 		API_KEY: PolygonAPIKey,
 		Client:  &http.Client{},
@@ -30,21 +31,28 @@ func main() {
 	}
 	calculationChan := make(chan coinapi.LatestOhlcv, 60)
 
-	params := &coinapi.Params{
-		Symbol:          "ETHUSD",
-		Period:          "1MIN",
-		Limit:           "60",
-		CalculationChan: calculationChan,
-	}
-	var dataService coinapi.IDataService
-	ourDataService := coin
+	//params := &coinapi.Params{
+	//	Symbol:          "ETHUSD",
+	//	Period:          "1MIN",
+	//	Limit:           "60",
+	//	CalculationChan: calculationChan,
+	//}
+	parameters := new(coinapi.Params)
+	parameters.Symbol = "ETHUSD"
+	parameters.Period = "1MIN"
+	parameters.Limit = "60"
+	parameters.CalculationChan = calculationChan
 
+	//coinsapi := false
+	//
 	polygonEnabled := true
 	if polygonEnabled {
-		dataService = polygon
+		//dataService = polygon{parameters}
+	} else {
+		//dataService = coin.GetCoinLatest(parameters)
 	}
 
-	go coinToSlack(ourDataService)
+	go coinToSlack(dataService)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 
 }
@@ -75,7 +83,7 @@ func coinToSlack(dataService coinapi.IDataService) {
 	//	API_KEY: CoinAPIKey,
 	//	Client:  &http.Client{},
 	//}
-	data := &coinapi.IDataService
+	//data := &coinapi.IDataService
 	calculator := &calulations.Calculations{
 		CalculationChan: calculationChan,
 		TriggerChan:     TriggerChan,
@@ -101,8 +109,8 @@ func coinToSlack(dataService coinapi.IDataService) {
 	go notification.SendSignal()
 
 	c.AddFunc("@every 1m", func() {
-		go coinapi.GetCoinLatest("ETH/USD", "1MIN", "60", calculationChan)
-		go dataService.GetCoinLatest(params)
+		//go coinapi.GetCoinLatest("ETH/USD", "1MIN", "60", calculationChan)
+		go dataService.GetCoinLatest()
 
 	})
 	c.Start()

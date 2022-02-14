@@ -38,9 +38,9 @@ type Polygon struct {
 
 // cryptoTicker string, multiplier string, timespan string, limit string, CalculationChan chan LatestOhlcv
 func (p *Polygon) GetCoinLatest(params Params) []LatestOhlcv {
-	timespan := formatTimespan(params.period)
+	timespan := formatTimespan(params.Period)
 
-	url := "https://api.polygon.io/v2/aggs/ticker/X:" + params.symbol + "/range/" + timespan[0] + "/" + formatUnit(params.period) + "/" + getTodaysDate() + "/" + getTodaysDate() + "?adjusted=true&sort=desc&limit=" + params.limit
+	url := "https://api.polygon.io/v2/aggs/ticker/X:" + params.Symbol + "/range/" + timespan[0] + "/" + formatUnit(params.Period) + "/" + getTodaysDate() + "/" + getTodaysDate() + "?adjusted=true&sort=desc&limit=" + params.Limit
 
 	polyClient := http.Client{Timeout: time.Second * 2}
 
