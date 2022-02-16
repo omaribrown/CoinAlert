@@ -8,11 +8,11 @@ import (
 
 func TestBolBandTriggers_LowerBbBreakout(t *testing.T) {
 	t.Run("Should spot candle where close is below lower bb", func(t *testing.T) {
-		TriggerChan := make(chan coinapi.LatestOhlcv)
-		NotifChan := make(chan coinapi.LatestOhlcv)
-		var NotifHolder coinapi.LatestOhlcv
+		TriggerChan := make(chan coinapi.Candle)
+		NotifChan := make(chan coinapi.Candle)
+		var NotifHolder coinapi.Candle
 
-		TriggerChan <- coinapi.LatestOhlcv{
+		TriggerChan <- coinapi.Candle{
 			TimePeriodStart:    "",
 			TimePeriodEnd:      "",
 			TimeOpen:           "",
@@ -38,4 +38,3 @@ func TestBolBandTriggers_LowerBbBreakout(t *testing.T) {
 
 	})
 }
-

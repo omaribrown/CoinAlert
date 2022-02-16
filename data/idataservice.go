@@ -1,12 +1,11 @@
 package coinapi
 
 type IDataService interface {
-	GetCoinLatest() []LatestOhlcv
+	GetCandles(params Params) []Candle
 }
 
 type Params struct {
-	Symbol          string
-	Period          string
-	Limit           string
-	CalculationChan chan LatestOhlcv
+	Symbol string
+	Period string
+	Limit  string
 }

@@ -9,8 +9,8 @@ import (
 
 func TestSendSignal(t *testing.T) {
 	t.Run("Should send message to slack", func(t *testing.T) {
-		testBollBand := make(chan coinapi.LatestOhlcv, 20)
-		testBollBand <- coinapi.LatestOhlcv{
+		testBollBand := make(chan coinapi.Candle, 20)
+		testBollBand <- coinapi.Candle{
 			PriceClose:         100,
 			BollingerBandUpper: 95,
 			BollingerBandLower: 70,

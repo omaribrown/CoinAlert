@@ -5,8 +5,8 @@ import (
 )
 
 type BolBandTriggers struct {
-	TriggerChan chan coinapi.LatestOhlcv
-	NotifChan   chan coinapi.LatestOhlcv
+	TriggerChan chan coinapi.Candle
+	NotifChan   chan coinapi.Candle
 }
 
 func (b *BolBandTriggers) LowerBbBreakout() {

@@ -1,8 +1,12 @@
 package calulations
 
 import (
+	"encoding/csv"
+	"fmt"
 	coinapi "github.com/omaribrown/coinalert/data"
+	"log"
 	"math"
+	"os"
 )
 
 type indicators struct {
@@ -10,11 +14,12 @@ type indicators struct {
 }
 
 type bolBandCalculator struct {
-	bollingerBandCandle coinapi.LatestOhlcv
-	bolUpper            float64
-	bolLower            float64
-	candles             []coinapi.LatestOhlcv
-	size                int
+	bollingerBandCandle  coinapi.Candle
+	bollingerBandCandles []coinapi.Candle
+	bolUpper             float64
+	bolLower             float64
+	candles              []coinapi.Candle
+	size                 int
 }
 
 type Props struct {
@@ -31,17 +36,19 @@ func New(props Props) *bolBandCalculator {
 	}
 }
 
-func (b *bolBandCalculator) add(candle coinapi.LatestOhlcv, TriggerChan chan coinapi.LatestOhlcv) {
+func (b *bolBandCalculator) add(candle coinapi.Candle, TriggerChan chan coinapi.Candle) {
 	b.candles = append(b.candles, candle)
-	if len(b.candles) < b.size {
+	if len(b.candles) < b.size+1 {
+		b.bollingerBandCandles = append(b.bollingerBandCandles, candle)
 		return
 	}
 	standardDevs := 2.0
 	movingAvg := calcSma(b.candles, b.size)
+
 	stanDevPer := standardDev(b.candles, b.size)
 	b.bolUpper = movingAvg + (stanDevPer * standardDevs)
 	b.bolLower = movingAvg - (stanDevPer * standardDevs)
-	b.bollingerBandCandle = coinapi.LatestOhlcv{
+	b.bollingerBandCandle = coinapi.Candle{
 		TimePeriodStart:    candle.TimePeriodStart,
 		TimePeriodEnd:      candle.TimePeriodEnd,
 		TimeOpen:           candle.TimeOpen,
@@ -55,12 +62,60 @@ func (b *bolBandCalculator) add(candle coinapi.LatestOhlcv, TriggerChan chan coi
 		BollingerBandUpper: b.bolUpper,
 		BollingerBandLower: b.bolLower,
 	}
-	b.candles = b.candles[1:]
 
+	b.bollingerBandCandles = append(b.bollingerBandCandles, b.bollingerBandCandle)
+	csvData(b.bollingerBandCandles)
+
+	b.candles = b.candles[1:]
+	//f, err := os.Create("data.csv")
+	//defer f.Close()
+	//if err != nil {
+	//	log.Fatalln("failed to open file", err)
+	//}
+	//w := csv.NewWriter(f)
+	//defer w.Flush()
+	//for _, candle := range b.candles {
+	//	var stringSlice []string
+	//	stringData, err := json.Marshal(candle)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//	stringSlice = append(stringSlice, string(stringData))
+	//	if err := w.Write(stringSlice); err != nil {
+	//		log.Fatalln("error writing record to file", err)
+	//	}
+	//
+	//}
+	fmt.Println("Open time: ", b.bollingerBandCandle.TimePeriodStart)
 	TriggerChan <- b.bollingerBandCandle
+
 }
 
-func standardDev(data []coinapi.LatestOhlcv, size int) float64 {
+func csvData(candles []coinapi.Candle) {
+	multiDim := [][]string{}
+	multiDim = append(multiDim, []string{"Time Open", "Price Open", "Price High", "Price Low", "Price Close", "Upper BB", "Lower BB", "Moving Average", "Standard Deviation/Period"})
+	for _, candle := range candles {
+		row := []string{candle.TimePeriodStart, fmt.Sprintf("%f", candle.PriceOpen), fmt.Sprintf("%f", candle.PriceHigh), fmt.Sprintf("%f", candle.PriceLow), fmt.Sprintf("%f", candle.PriceClose), fmt.Sprintf("%f", candle.BollingerBandUpper), fmt.Sprintf("%f", candle.BollingerBandLower)}
+		multiDim = append(multiDim, row)
+	}
+
+	f, err := os.Create("data.csv")
+	defer f.Close()
+
+	if err != nil {
+
+		log.Fatalln("failed to open file", err)
+	}
+
+	w := csv.NewWriter(f)
+	err = w.WriteAll(multiDim) // calls Flush internally
+
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func standardDev(data []coinapi.Candle, size int) float64 {
 
 	closeMean := calcSma(data, size)
 	var devLessMean []float64
@@ -79,7 +134,7 @@ func standardDev(data []coinapi.LatestOhlcv, size int) float64 {
 	sqrRoot := math.Sqrt(avDevs)
 	return sqrRoot
 }
-func calcSma(data []coinapi.LatestOhlcv, size int) float64 {
+func calcSma(data []coinapi.Candle, size int) float64 {
 	sum := 0.0
 	sma := 0.0
 	for _, elem := range data {

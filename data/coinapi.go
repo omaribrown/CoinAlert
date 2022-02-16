@@ -2,7 +2,6 @@ package coinapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,7 +12,7 @@ type IResty interface {
 }
 
 // API Data
-type LatestOhlcv struct {
+type Candle struct {
 	TimePeriodStart    string  `json:"time_period_start"`
 	TimePeriodEnd      string  `json:"time_period_end"`
 	TimeOpen           string  `json:"time_open"`
@@ -33,8 +32,8 @@ type Coinapi struct {
 	Client  IResty
 }
 
-//symbol string, period string, limit string, CalculationChan chan LatestOhlcv
-func (c *Coinapi) GetCoinLatest(params Params) []LatestOhlcv {
+//symbol string, period string, limit string, CalculationChan chan Candle
+func (c *Coinapi) GetCandles(params Params) []Candle {
 
 	req, err := http.NewRequest("GET", "https://rest.coinapi.io/v1/ohlcv/"+params.Symbol+"/latest?period_id="+params.Period+"&limit="+params.Limit, nil)
 	req.Header.Set("X-CoinAPI-Key", c.API_KEY)
@@ -45,12 +44,8 @@ func (c *Coinapi) GetCoinLatest(params Params) []LatestOhlcv {
 		log.Fatal(err)
 	}
 
-	var Newstruct []LatestOhlcv
+	var Newstruct []Candle
 	json.Unmarshal(body, &Newstruct)
-	fmt.Println(Newstruct)
-	for v, _ := range Newstruct {
-		params.CalculationChan <- Newstruct[v]
-	}
 	return Newstruct
 
 }

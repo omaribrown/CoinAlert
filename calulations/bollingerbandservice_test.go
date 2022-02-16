@@ -8,10 +8,10 @@ import (
 
 func TestCalculations_SendToCalc(t *testing.T) {
 	t.Run("should run calculator function for every channel passed", func(t *testing.T) {
-		CalculationChan := make(chan coinapi.LatestOhlcv, 60)
-		TriggerChan := make(chan coinapi.LatestOhlcv)
+		CalculationChan := make(chan coinapi.Candle, 60)
+		TriggerChan := make(chan coinapi.Candle)
 		var count int
-		sampleCandles := []coinapi.LatestOhlcv{
+		sampleCandles := []coinapi.Candle{
 			{"2022-01-14T12:00:00.0000000Z", "2022-01-14T12:01:00.0000000Z", "2022-01-14T12:00:00.0849950Z", 0, 42027.95, 42029.92, 41981.6, 41999.1, 19.69203505, 437, 0, 0},
 			{"2022-01-14T12:01:00.0000000Z", "2022-01-14T12:02:00.0000000Z", "2022-01-14T12:01:00.1423980Z", 0, 41999.95, 42108.7, 41997.5, 42070.02, 19.78920186, 499, 0, 0},
 			{"2022-01-14T12:02:00.0000000Z", "2022-01-14T12:03:00.0000000Z", "2022-01-14T12:02:00.2340620Z", 0, 42070.01, 42095.55, 42032.95, 42036.61, 12.80829069, 382, 0, 0},

@@ -2,7 +2,6 @@ package coinapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -36,8 +35,8 @@ type Polygon struct {
 	Client  IResty
 }
 
-// cryptoTicker string, multiplier string, timespan string, limit string, CalculationChan chan LatestOhlcv
-func (p *Polygon) GetCoinLatest(params Params) []LatestOhlcv {
+// cryptoTicker string, multiplier string, timespan string, limit string, CalculationChan chan Candle
+func (p *Polygon) GetCandles(params Params) []Candle {
 	timespan := formatTimespan(params.Period)
 
 	url := "https://api.polygon.io/v2/aggs/ticker/X:" + params.Symbol + "/range/" + timespan[0] + "/" + formatUnit(params.Period) + "/" + getTodaysDate() + "/" + getTodaysDate() + "?adjusted=true&sort=desc&limit=" + params.Limit
@@ -71,9 +70,9 @@ func (p *Polygon) GetCoinLatest(params Params) []LatestOhlcv {
 	if jsonErr != nil {
 		log.Fatal(jsonErr)
 	}
-	var candles []LatestOhlcv
+	var candles []Candle
 	for _, i := range bars.Results {
-		candles = append(candles, LatestOhlcv{
+		candles = append(candles, Candle{
 			TimePeriodStart:    unixToRFC(i.Time),
 			TimePeriodEnd:      "",
 			TimeOpen:           "",
@@ -89,10 +88,6 @@ func (p *Polygon) GetCoinLatest(params Params) []LatestOhlcv {
 		})
 	}
 	candles = reverseCandles(candles)
-	fmt.Println(candles)
-	for v, _ := range candles {
-		params.CalculationChan <- candles[v]
-	}
 	return candles
 }
 
@@ -122,7 +117,7 @@ func getTodaysDate() string {
 	return tm
 }
 
-func reverseCandles(candles []LatestOhlcv) []LatestOhlcv {
+func reverseCandles(candles []Candle) []Candle {
 	for i := 0; i < len(candles)/2; i++ {
 		j := len(candles) - i - 1
 		candles[i], candles[j] = candles[j], candles[i]

@@ -5,8 +5,8 @@ import (
 )
 
 type Calculations struct {
-	CalculationChan chan coinapi.LatestOhlcv
-	TriggerChan     chan coinapi.LatestOhlcv
+	CalculationChan chan coinapi.Candle
+	TriggerChan     chan coinapi.Candle
 }
 
 func (c *Calculations) SendToCalc() {
