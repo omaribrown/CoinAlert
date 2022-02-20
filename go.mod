@@ -4,19 +4,18 @@ module github.com/omaribrown/coinalert
 
 go 1.17
 
-require (
-	github.com/montanaflynn/stats v0.6.6 // indirect
-	gopkg.in/resty.v0 v0.4.1 // indirect
-)
+require gopkg.in/resty.v0 v0.4.1 // indirect
 
 require (
 	github.com/joho/godotenv v1.4.0
+	github.com/montanaflynn/stats v0.6.6
 	github.com/robfig/cron v1.2.0
+	github.com/sirupsen/logrus v1.8.1
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/gorilla/websocket v1.5.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

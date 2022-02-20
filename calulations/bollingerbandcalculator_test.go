@@ -110,6 +110,11 @@ func TestCalcSma(t *testing.T) {
 				PriceLow:   20,
 				PriceClose: 50,
 			},
+			{
+				PriceHigh:  100,
+				PriceLow:   20,
+				PriceClose: 50,
+			},
 		}
 
 		testResult := calcSma(sampleData, 20)

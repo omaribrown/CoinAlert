@@ -3,6 +3,7 @@ package calulations
 import (
 	"encoding/csv"
 	"fmt"
+	"github.com/montanaflynn/stats"
 	coinapi "github.com/omaribrown/coinalert/data"
 	"log"
 	"math"
@@ -38,7 +39,7 @@ func New(props Props) *bolBandCalculator {
 
 func (b *bolBandCalculator) add(candle coinapi.Candle, TriggerChan chan coinapi.Candle) {
 	b.candles = append(b.candles, candle)
-	if len(b.candles) < b.size+1 {
+	if len(b.candles) < b.size {
 		b.bollingerBandCandles = append(b.bollingerBandCandles, candle)
 		return
 	}
@@ -46,8 +47,12 @@ func (b *bolBandCalculator) add(candle coinapi.Candle, TriggerChan chan coinapi.
 	movingAvg := calcSma(b.candles, b.size)
 
 	stanDevPer := standardDev(b.candles, b.size)
+	//! Upper is increasing over time. not sure why
 	b.bolUpper = movingAvg + (stanDevPer * standardDevs)
+	fmt.Println("Upper: ", b.bolUpper)
 	b.bolLower = movingAvg - (stanDevPer * standardDevs)
+	fmt.Println("Lower: ", b.bolLower)
+
 	b.bollingerBandCandle = coinapi.Candle{
 		TimePeriodStart:    candle.TimePeriodStart,
 		TimePeriodEnd:      candle.TimePeriodEnd,
@@ -67,27 +72,9 @@ func (b *bolBandCalculator) add(candle coinapi.Candle, TriggerChan chan coinapi.
 	csvData(b.bollingerBandCandles)
 
 	b.candles = b.candles[1:]
-	//f, err := os.Create("data.csv")
-	//defer f.Close()
-	//if err != nil {
-	//	log.Fatalln("failed to open file", err)
-	//}
-	//w := csv.NewWriter(f)
-	//defer w.Flush()
-	//for _, candle := range b.candles {
-	//	var stringSlice []string
-	//	stringData, err := json.Marshal(candle)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//	stringSlice = append(stringSlice, string(stringData))
-	//	if err := w.Write(stringSlice); err != nil {
-	//		log.Fatalln("error writing record to file", err)
-	//	}
-	//
-	//}
+
 	fmt.Println("Open time: ", b.bollingerBandCandle.TimePeriodStart)
-	TriggerChan <- b.bollingerBandCandle
+	//TriggerChan <- b.bollingerBandCandle
 
 }
 
@@ -132,6 +119,7 @@ func standardDev(data []coinapi.Candle, size int) float64 {
 	}
 	avDevs = addDevs / float64(size)
 	sqrRoot := math.Sqrt(avDevs)
+	fmt.Println("standev: ", sqrRoot)
 	return sqrRoot
 }
 func calcSma(data []coinapi.Candle, size int) float64 {
@@ -142,4 +130,16 @@ func calcSma(data []coinapi.Candle, size int) float64 {
 	}
 	sma = sum / float64(size)
 	return sma
+}
+
+func pkgStanDev(data []coinapi.Candle) float64 {
+	var closes []float64
+	for _, close := range data {
+		closes = append(closes, close.PriceClose)
+	}
+	sdev, err := stats.StandardDeviationPopulation(closes)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return sdev
 }
