@@ -25,31 +25,36 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var dataService coinapi.IDataService
+	go coinToSlack(
+		selectDataService("polygon"),
+		env.Get("SLACK_AUTH_TOKEN"),
+		env.Get("SLACK_CHANNEL_ID"),
+	)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 
-	polygonEnabled := true
-	if polygonEnabled {
+}
+
+func selectDataService(service string) coinapi.IDataService {
+	env, err := envVariables.New(envVariables.Props{DotEnvPath: ".env"})
+	if err != nil {
+		log.Fatal(err)
+	}
+	var dataService coinapi.IDataService
+	switch service {
+	case "polygon":
 		PolygonAPIKey := env.Get("POLY_API_KEY")
 		dataService = &coinapi.Polygon{
 			API_KEY: PolygonAPIKey,
 			Client:  &http.Client{},
 		}
-
-	} else {
+	case "coinapi":
 		CoinAPIKey := env.Get("API_KEY")
 		dataService = &coinapi.Coinapi{
 			API_KEY: CoinAPIKey,
 			Client:  &http.Client{},
 		}
 	}
-
-	go coinToSlack(
-		dataService,
-		env.Get("SLACK_AUTH_TOKEN"),
-		env.Get("SLACK_CHANNEL_ID"),
-	)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
-
+	return dataService
 }
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
