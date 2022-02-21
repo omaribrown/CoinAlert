@@ -2,6 +2,7 @@ package coinapi
 
 import (
 	"encoding/json"
+	"go.uber.org/zap"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -37,6 +38,7 @@ type Polygon struct {
 
 // cryptoTicker string, multiplier string, timespan string, limit string, CalculationChan chan Candle
 func (p *Polygon) GetCandles(params Params) []Candle {
+	zap.S().Info("Getting Candles from Polygon with Params ==> ", params)
 	timespan := formatTimespan(params.Period)
 
 	url := "https://api.polygon.io/v2/aggs/ticker/X:" + params.Symbol + "/range/" + timespan[0] + "/" + formatUnit(params.Period) + "/" + getTodaysDate() + "/" + getTodaysDate() + "?adjusted=true&sort=desc&limit=" + params.Limit
@@ -46,7 +48,6 @@ func (p *Polygon) GetCandles(params Params) []Candle {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		log.Fatal(err)
-
 	}
 	req.Header.Set("Authorization", "Bearer "+p.API_KEY)
 
@@ -88,6 +89,7 @@ func (p *Polygon) GetCandles(params Params) []Candle {
 		})
 	}
 	candles = reverseCandles(candles)
+	zap.S().Info("Candles ==> ", candles)
 	return candles
 }
 

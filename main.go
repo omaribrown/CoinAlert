@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/natefinch/lumberjack"
 	"github.com/omaribrown/coinalert/calulations"
 	_ "github.com/omaribrown/coinalert/calulations"
 	coinapi "github.com/omaribrown/coinalert/data"
@@ -9,6 +10,8 @@ import (
 	"github.com/omaribrown/coinalert/slack"
 	"github.com/omaribrown/coinalert/triggers"
 	"github.com/robfig/cron"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -16,6 +19,13 @@ import (
 )
 
 func main() {
+
+	loggerMgr := initZapLog()
+	zap.ReplaceGlobals(loggerMgr)
+	defer loggerMgr.Sync() // flushes buffer, if any
+	logger := loggerMgr.Sugar()
+	logger.Debug("START!")
+
 	port := os.Getenv("PORT")
 	http.HandleFunc("/", RootHandler)
 
@@ -26,12 +36,28 @@ func main() {
 	}
 
 	go coinToSlack(
-		selectDataService("polygon"),
+		selectDataService("coinapi"),
 		env.Get("SLACK_AUTH_TOKEN"),
 		env.Get("SLACK_CHANNEL_ID"),
 	)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 
+}
+
+func initZapLog() *zap.Logger {
+	config := zap.NewDevelopmentConfig()
+	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	config.EncoderConfig.TimeKey = "timestamp"
+	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	logger, _ := config.Build()
+	log.SetOutput(&lumberjack.Logger{
+		Filename:   "test.log",
+		MaxSize:    500, // megabytes
+		MaxBackups: 3,
+		MaxAge:     28,   //days
+		Compress:   true, // disabled by default
+	})
+	return logger
 }
 
 func selectDataService(service string) coinapi.IDataService {
@@ -53,7 +79,11 @@ func selectDataService(service string) coinapi.IDataService {
 			API_KEY: CoinAPIKey,
 			Client:  &http.Client{},
 		}
+	default:
+		zap.S().Error("Invalid service selection ==> ", service)
+		return nil
 	}
+	zap.S().Info("Service set as ==> ", service)
 	return dataService
 }
 
@@ -76,6 +106,7 @@ func coinToSlack(dataService coinapi.IDataService, slackToken string, slackChann
 		CalculationChan: calculationChan,
 		TriggerChan:     TriggerChan,
 	}
+
 	strategy := &triggers.BolBandTriggers{
 		TriggerChan: TriggerChan,
 		NotifChan:   notifChan,
@@ -90,7 +121,7 @@ func coinToSlack(dataService coinapi.IDataService, slackToken string, slackChann
 	}
 
 	c := cron.New()
-	fmt.Println("starting cron job")
+	zap.S().Info("starting cron job")
 
 	go calculator.SendToCalc()
 	go strategy.LowerBbBreakout()
@@ -101,14 +132,13 @@ func coinToSlack(dataService coinapi.IDataService, slackToken string, slackChann
 		params := coinapi.Params{
 			Symbol: "ETHUSD",
 			Period: "1MIN",
-			Limit:  "60",
+			Limit:  "1",
 		}
 
 		candles := dataService.GetCandles(params)
-
 		for _, candle := range candles {
 			calculationChan <- candle
-			//fmt.Println("Candle received, sending to calc chan", candle)
+			zap.S().Info("Sending candles to calculations...")
 		}
 	})
 	c.Start()

@@ -4,13 +4,19 @@ module github.com/omaribrown/coinalert
 
 go 1.17
 
-require gopkg.in/resty.v0 v0.4.1 // indirect
+require (
+	github.com/montanaflynn/stats v0.6.6 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
+	go.uber.org/multierr v1.7.0 // indirect
+	gopkg.in/resty.v0 v0.4.1 // indirect
+)
 
 require (
 	github.com/joho/godotenv v1.4.0
-	github.com/montanaflynn/stats v0.6.6
+	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.8.1
+	go.uber.org/zap v1.21.0
 )
 
 require (

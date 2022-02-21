@@ -1,8 +1,8 @@
 package slack
 
 import (
-	"fmt"
 	"github.com/slack-go/slack"
+	"go.uber.org/zap"
 )
 
 type ISlackService interface {
@@ -45,5 +45,5 @@ func (s SlackService) SendSlackMessage(message SlackMessage) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Message sent at %s", timestamp)
+	zap.S().Infof("Message sent at %s", timestamp)
 }
