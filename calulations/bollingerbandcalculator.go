@@ -70,11 +70,11 @@ func (b *bolBandCalculator) add(candle coinapi.Candle, TriggerChan chan coinapi.
 	}
 
 	b.bollingerBandCandles = append(b.bollingerBandCandles, b.bollingerBandCandle)
+	zap.S().Info("Sending Bollinger Band Candle to TriggerChan ==> ", b.bollingerBandCandle)
 	//csvData(b.bollingerBandCandles)
 
 	b.candles = b.candles[1:]
 
-	//fmt.Println("Open time: ", b.bollingerBandCandle.TimePeriodStart)
 	TriggerChan <- b.bollingerBandCandle
 
 }

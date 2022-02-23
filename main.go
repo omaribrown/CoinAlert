@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/natefinch/lumberjack"
 	"github.com/omaribrown/coinalert/calulations"
 	_ "github.com/omaribrown/coinalert/calulations"
 	coinapi "github.com/omaribrown/coinalert/data"
@@ -36,7 +35,7 @@ func main() {
 	}
 
 	go coinToSlack(
-		selectDataService("coinapi"),
+		selectDataService("polygon"),
 		env.Get("SLACK_AUTH_TOKEN"),
 		env.Get("SLACK_CHANNEL_ID"),
 	)
@@ -49,14 +48,13 @@ func initZapLog() *zap.Logger {
 	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	config.EncoderConfig.TimeKey = "timestamp"
 	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	config.ErrorOutputPaths = []string{
+		"logs/errors.log",
+	}
+	//config.OutputPaths = []string{
+	//	"logs/test.log",
+	//}
 	logger, _ := config.Build()
-	log.SetOutput(&lumberjack.Logger{
-		Filename:   "test.log",
-		MaxSize:    500, // megabytes
-		MaxBackups: 3,
-		MaxAge:     28,   //days
-		Compress:   true, // disabled by default
-	})
 	return logger
 }
 
@@ -138,7 +136,7 @@ func coinToSlack(dataService coinapi.IDataService, slackToken string, slackChann
 		candles := dataService.GetCandles(params)
 		for _, candle := range candles {
 			calculationChan <- candle
-			zap.S().Info("Sending candles to calculations...")
+			zap.S().Info("Sending candles to CalcChan...")
 		}
 	})
 	c.Start()

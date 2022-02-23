@@ -2,8 +2,8 @@ package coinapi
 
 import (
 	"encoding/json"
+	"go.uber.org/zap"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -35,17 +35,30 @@ type Coinapi struct {
 //symbol string, period string, limit string, CalculationChan chan Candle
 func (c *Coinapi) GetCandles(params Params) []Candle {
 
-	req, err := http.NewRequest("GET", "https://rest.coinapi.io/v1/ohlcv/"+params.Symbol+"/latest?period_id="+params.Period+"&limit="+params.Limit, nil)
+	req, err := http.NewRequest("GET", "https://rest.coinapi.io/v1/ohlcv/"+formatSymbol(params.Symbol)+"/latest?period_id="+params.Period+"&limit="+params.Limit, nil)
 	req.Header.Set("X-CoinAPI-Key", c.API_KEY)
+	zap.S().Debug("Trying to get response at url ==> ", req)
 	resp, err := c.Client.Do(req)
+	if err != nil {
+		zap.S().Fatal("Failed to get response ==> ", err)
+	} else {
+		zap.S().Debug("Got response status ==> ", resp.Status)
+	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		zap.S().Fatal("Failed to read body ==> ", err)
+
 	}
 
 	var Newstruct []Candle
 	json.Unmarshal(body, &Newstruct)
 	return Newstruct
 
+}
+
+func formatSymbol(symbol string) string {
+	index := 3
+	insertSlash := symbol[:index] + "/" + symbol[index:]
+	return insertSlash
 }

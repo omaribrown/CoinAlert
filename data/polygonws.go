@@ -7,9 +7,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type WsPolygon struct {
+}
+
 func openWebsocket(key string) {
 	APIKEY := key
-	const CHANNELS = "XT.X:ETH-USD"
+	const CHANNELS = "XA.ETH-USD, XA.XRP-USD"
 	c, _, err := websocket.DefaultDialer.Dial("wss://socket.polygon.io/crypto", nil)
 	if err != nil {
 		panic(err)

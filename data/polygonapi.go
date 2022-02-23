@@ -97,13 +97,6 @@ func formatTimespan(period string) []string {
 	return strings.SplitAfterN(period, "1", 2)
 }
 
-// needed in coinapi.go
-func formatSymbol(symbol string) string {
-	index := 2
-	insertSlash := symbol[:index] + "/" + symbol[index:]
-	return insertSlash
-}
-
 func unixToRFC(unix int64) string {
 	sec := unix / 1000
 	msec := unix % 1000
