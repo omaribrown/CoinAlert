@@ -32,6 +32,18 @@ type Coinapi struct {
 	Client  IResty
 }
 
+type Props struct {
+	API_KEY string
+	Client  IResty
+}
+
+func New(props Props) *Coinapi {
+	return &Coinapi{
+		API_KEY: props.API_KEY,
+		Client:  props.Client,
+	}
+}
+
 //symbol string, period string, limit string, CalculationChan chan Candle
 func (c *Coinapi) GetCandles(params Params) []Candle {
 

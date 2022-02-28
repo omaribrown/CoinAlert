@@ -14,7 +14,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 )
 
 func main() {
@@ -22,10 +21,8 @@ func main() {
 	loggerMgr := initZapLog()
 	zap.ReplaceGlobals(loggerMgr)
 	defer loggerMgr.Sync() // flushes buffer, if any
-	logger := loggerMgr.Sugar()
-	logger.Debug("START!")
 
-	port := os.Getenv("PORT")
+	// Handling received requests
 	http.HandleFunc("/", RootHandler)
 
 	// load env with env.go implementation
@@ -34,8 +31,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	port := env.Get("PORT")
+
 	go coinToSlack(
-		selectDataService("polygon"),
+		selectDataService("polygon", env),
 		env.Get("SLACK_AUTH_TOKEN"),
 		env.Get("SLACK_CHANNEL_ID"),
 	)
@@ -51,32 +50,26 @@ func initZapLog() *zap.Logger {
 	config.ErrorOutputPaths = []string{
 		"logs/errors.log",
 	}
-	//config.OutputPaths = []string{
-	//	"logs/test.log",
-	//}
+
 	logger, _ := config.Build()
 	return logger
 }
 
-func selectDataService(service string) coinapi.IDataService {
-	env, err := envVariables.New(envVariables.Props{DotEnvPath: ".env"})
-	if err != nil {
-		log.Fatal(err)
-	}
+func selectDataService(service string, env *envVariables.Env) coinapi.IDataService {
+
 	var dataService coinapi.IDataService
 	switch service {
 	case "polygon":
-		PolygonAPIKey := env.Get("POLY_API_KEY")
-		dataService = &coinapi.Polygon{
-			API_KEY: PolygonAPIKey,
+		dataService = coinapi.NewPoly(coinapi.Props{
+			API_KEY: env.Get("POLY_API_KEY"),
 			Client:  &http.Client{},
-		}
+		})
 	case "coinapi":
-		CoinAPIKey := env.Get("API_KEY")
-		dataService = &coinapi.Coinapi{
-			API_KEY: CoinAPIKey,
+		dataService = coinapi.New(coinapi.Props{
+			API_KEY: env.Get("API_KEY"),
 			Client:  &http.Client{},
-		}
+		})
+
 	default:
 		zap.S().Error("Invalid service selection ==> ", service)
 		return nil
@@ -126,7 +119,7 @@ func coinToSlack(dataService coinapi.IDataService, slackToken string, slackChann
 	go notification.SendSignal()
 
 	c.AddFunc("@every 1m", func() {
-		//go coinapi.GetCandles("ETH/USD", "1MIN", "60", calculationChan)
+
 		params := coinapi.Params{
 			Symbol: "ETHUSD",
 			Period: "1MIN",

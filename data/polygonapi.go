@@ -36,6 +36,13 @@ type Polygon struct {
 	Client  IResty
 }
 
+func NewPoly(props Props) *Polygon {
+	return &Polygon{
+		API_KEY: props.API_KEY,
+		Client:  props.Client,
+	}
+}
+
 // cryptoTicker string, multiplier string, timespan string, limit string, CalculationChan chan Candle
 func (p *Polygon) GetCandles(params Params) []Candle {
 	zap.S().Info("Getting Candles from Polygon with Params ==> ", params)
