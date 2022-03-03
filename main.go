@@ -20,7 +20,7 @@ func main() {
 
 	loggerMgr := initZapLog()
 	zap.ReplaceGlobals(loggerMgr)
-	defer loggerMgr.Sync() // flushes buffer, if any
+	defer loggerMgr.Sync()
 
 	// Handling received requests
 	http.HandleFunc("/", RootHandler)

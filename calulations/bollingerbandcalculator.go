@@ -10,10 +10,6 @@ import (
 	"os"
 )
 
-type indicators struct {
-	bolBands []bolBandCalculator
-}
-
 type bolBandCalculator struct {
 	bollingerBandCandle  coinapi.Candle
 	bollingerBandCandles []coinapi.Candle
@@ -50,9 +46,7 @@ func (b *bolBandCalculator) add(candle coinapi.Candle, TriggerChan chan coinapi.
 
 	stanDevPer := standardDev(b.candles, b.size)
 	b.bolUpper = movingAvg + (stanDevPer * standardDevs)
-	//fmt.Println("Upper: ", b.bolUpper)
 	b.bolLower = movingAvg - (stanDevPer * standardDevs)
-	//fmt.Println("Lower: ", b.bolLower)
 
 	b.bollingerBandCandle = coinapi.Candle{
 		TimePeriodStart:    candle.TimePeriodStart,
@@ -71,7 +65,7 @@ func (b *bolBandCalculator) add(candle coinapi.Candle, TriggerChan chan coinapi.
 
 	b.bollingerBandCandles = append(b.bollingerBandCandles, b.bollingerBandCandle)
 	zap.S().Info("Sending Bollinger Band Candle to TriggerChan ==> ", b.bollingerBandCandle)
-	//csvData(b.bollingerBandCandles)
+	// csvData(b.bollingerBandCandles)
 
 	b.candles = b.candles[1:]
 
