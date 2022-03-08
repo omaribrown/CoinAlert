@@ -29,7 +29,7 @@ func TestBolBandTriggers_LowerBbBreakout(t *testing.T) {
 
 		newSpotter := new(BolBandTriggers)
 
-		newSpotter.LowerBbBreakout(TriggerChan, NotifChan)
+		newSpotter.LowerBbBreakout()
 		NotifHolder = <-NotifChan
 
 		testVar := NotifHolder.PriceOpen

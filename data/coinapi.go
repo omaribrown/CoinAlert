@@ -11,7 +11,6 @@ type IResty interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-// API Data
 type Candle struct {
 	TimePeriodStart    string  `json:"time_period_start"`
 	TimePeriodEnd      string  `json:"time_period_end"`
@@ -44,7 +43,6 @@ func New(props Props) *Coinapi {
 	}
 }
 
-//symbol string, period string, limit string, CalculationChan chan Candle
 func (c *Coinapi) GetCandles(params Params) []Candle {
 
 	req, err := http.NewRequest("GET", "https://rest.coinapi.io/v1/ohlcv/"+formatSymbol(params.Symbol)+"/latest?period_id="+params.Period+"&limit="+params.Limit, nil)

@@ -43,7 +43,6 @@ func NewPoly(props Props) *Polygon {
 	}
 }
 
-// cryptoTicker string, multiplier string, timespan string, limit string, CalculationChan chan Candle
 func (p *Polygon) GetCandles(params Params) []Candle {
 	zap.S().Info("Getting Candles from Polygon with Params ==> ", params)
 	timespan := formatTimespan(params.Period)

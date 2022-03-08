@@ -23,11 +23,8 @@ func TestSendSignal(t *testing.T) {
 		}
 
 		testSend := new(SlackTrigger)
-		SlackService := &slack.SlackService{
-			SlackToken:     "123",
-			SlackChannelID: "123",
-		}
-		testSend.SendSignal(testBollBand, SlackService)
+
+		testSend.SendSignal()
 
 		assert.Equal(t, "pre", testMessage)
 	})

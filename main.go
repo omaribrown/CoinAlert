@@ -22,10 +22,8 @@ func main() {
 	zap.ReplaceGlobals(loggerMgr)
 	defer loggerMgr.Sync()
 
-	// Handling received requests
 	http.HandleFunc("/", RootHandler)
 
-	// load env with env.go implementation
 	env, err := envVariables.New(envVariables.Props{DotEnvPath: ".env"})
 	if err != nil {
 		log.Fatal(err)

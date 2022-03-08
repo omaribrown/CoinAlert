@@ -8,7 +8,6 @@ import (
 
 func TestCalcSma(t *testing.T) {
 	t.Run("Should find sma", func(t *testing.T) {
-		//sampleLength := len(sampleData)
 		sampleData := []coinapi.Candle{
 			{
 				PriceHigh:  100,
@@ -318,7 +317,6 @@ func TestAdd(t *testing.T) {
 
 		testResult := <-chanHolder
 
-		//assert.Equal(t, 42187.778494266146, testResult.BollingerBandLower)
 		assert.Equal(t, 41881.13550573387, testResult.BollingerBandLower)
 	})
 }

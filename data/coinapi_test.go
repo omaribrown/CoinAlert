@@ -59,7 +59,6 @@ func TestPolygon_GetCoinLatest(t *testing.T) {
 		Symbol: "BTCUSD",
 		Period: "1MIN",
 		Limit:  "3",
-		//CalculationChan: CalculationChan,
 	}
 	testPolygon.GetCandles(params)
 

@@ -9,7 +9,7 @@ import (
 func TestCalculations_SendToCalc(t *testing.T) {
 	t.Run("should run calculator function for every channel passed", func(t *testing.T) {
 		CalculationChan := make(chan coinapi.Candle, 60)
-		TriggerChan := make(chan coinapi.Candle)
+
 		var count int
 		sampleCandles := []coinapi.Candle{
 			{"2022-01-14T12:00:00.0000000Z", "2022-01-14T12:01:00.0000000Z", "2022-01-14T12:00:00.0849950Z", 0, 42027.95, 42029.92, 41981.6, 41999.1, 19.69203505, 437, 0, 0},
@@ -58,7 +58,7 @@ func TestCalculations_SendToCalc(t *testing.T) {
 		}
 
 		test := new(Calculations)
-		go test.SendToCalc(CalculationChan, TriggerChan)
+		go test.SendToCalc()
 		// read from channel 37 times & compare last value
 		assert.Equal(t, 37, count)
 	})
