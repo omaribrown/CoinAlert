@@ -14,3 +14,6 @@
 
 .env
 slack_examples.go
+
+# Dependency directories
+/vendor/
